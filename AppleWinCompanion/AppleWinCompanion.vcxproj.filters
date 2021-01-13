@@ -31,6 +31,8 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="GameLink.h" />
+    <ClInclude Include="SidebarManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -39,6 +41,8 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="SidebarManager.cpp" />
+    <ClCompile Include="GameLink.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

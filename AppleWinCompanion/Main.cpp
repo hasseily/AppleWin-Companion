@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "resource.h"
 #include <WinUser.h>
+#include "GameLink.h"
 
 using namespace DirectX;
 
@@ -277,7 +278,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_KEYDOWN:
-        // GameLink::SendKeystroke((UINT)wParam, lParam);
+        GameLink::SendKeystroke((UINT)wParam, lParam);
     case WM_KEYUP:
     case WM_SYSKEYUP:
         Keyboard::ProcessMessage(message, wParam, lParam);
