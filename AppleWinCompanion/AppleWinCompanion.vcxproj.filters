@@ -33,6 +33,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="GameLink.h" />
     <ClInclude Include="SidebarManager.h" />
+    <ClInclude Include="HAUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -43,6 +44,7 @@
     </ClCompile>
     <ClCompile Include="SidebarManager.cpp" />
     <ClCompile Include="GameLink.cpp" />
+    <ClCompile Include="HAUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -80,5 +82,13 @@
     <None Include="Assets\a2-sharplarge-bolditalic.spritefont">
       <Filter>Assets</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\PixelShader.hlsl">
+      <Filter>Assets</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\VertexShader.hlsl">
+      <Filter>Assets</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

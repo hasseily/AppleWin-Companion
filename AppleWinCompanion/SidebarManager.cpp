@@ -157,11 +157,6 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
 // DRAWING SECTION
 ///////////////////////////////////////////////////////////////
 
-void SidebarManager::TestDraw()
-{
-    // TODO
-}
-
 void SidebarManager::DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags)
 {
     std::string fontFile = "a2-sharplarge.spritefont";

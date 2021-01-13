@@ -41,7 +41,6 @@ public:
 	bool DeleteLastRegion();
 
 	void DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags);
-	void TestDraw();
 };
 
 static std::wstring s2ws(const std::string& s);
