@@ -1,0 +1,6 @@
+D:\Repos\AppleWinCompanion\Debug\Assets\a2-sharplarge-bold.spritefont
+D:\Repos\AppleWinCompanion\Debug\Assets\a2-sharplarge-bolditalic.spritefont
+D:\Repos\AppleWinCompanion\Debug\Assets\a2-sharplarge-italic.spritefont
+D:\Repos\AppleWinCompanion\Debug\Assets\a2-sharplarge.spritefont
+D:\Repos\AppleWinCompanion\Debug\Assets\a2.spritefont
+D:\Repos\AppleWinCompanion\Debug\Assets\a2sharp.spritefont

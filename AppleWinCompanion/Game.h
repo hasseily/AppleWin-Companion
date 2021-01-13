@@ -42,7 +42,9 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const noexcept;
+    static int Game::GetSidebarWidth() noexcept;
+    static void Game::GetDefaultSize(int& width, int& height) noexcept;
+    static float Game::GetAspectRatio() noexcept;
 
 private:
 
@@ -59,4 +61,17 @@ private:
 
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
+
+    std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
+    std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
+    std::unique_ptr<DirectX::SpriteFont> m_font;
+
+    enum Descriptors
+    {
+        A2Font,
+        Count
+    };
+
+    std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+    DirectX::SimpleMath::Vector2 m_fontPos;
 };

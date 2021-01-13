@@ -21,6 +21,15 @@
     <ClInclude Include="d3dx12.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="ATGColors.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="FindMedia.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadData.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -45,5 +54,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Assets\a2-sharplarge-italic.spritefont">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\a2.spritefont">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\a2sharp.spritefont">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\a2-sharplarge.spritefont">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\a2-sharplarge-bold.spritefont">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\a2-sharplarge-bolditalic.spritefont">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
 </Project>

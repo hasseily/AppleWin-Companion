@@ -8,6 +8,9 @@
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
+
+constexpr int SIDEBAR_WIDTH = 200;
 
 using Microsoft::WRL::ComPtr;
 
@@ -87,13 +90,34 @@ void Game::Render()
     auto commandList = m_deviceResources->GetCommandList();
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
-    // TODO: Add your rendering code here.
+    // Add rendering code here.
+
+    // TODO: Demo rendering of text
+    ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
+    commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
+
+    m_spriteBatch->Begin(commandList);
+
+    const wchar_t* output = L"Hello World";
+
+    Vector2 origin = m_font->MeasureString(output) / 2.f;
+
+    m_font->DrawString(m_spriteBatch.get(), output,
+        m_fontPos, Colors::White, 0.f, origin);
+
+    const wchar_t* output2 = L"Hello World";
+
+    m_font->DrawString(m_spriteBatch.get(), output2,
+        m_fontPos + Vector2(0, 20.f), Colors::Red, 0.f, origin);
+
+    m_spriteBatch->End();
 
     PIXEndEvent(commandList);
 
     // Show the new frame.
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Present");
     m_deviceResources->Present();
+    m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
     PIXEndEvent();
 }
 
@@ -162,11 +186,22 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const noexcept
+int Game::GetSidebarWidth() noexcept
 {
-    // TODO: Change to desired default window size (note minimum size is 320x200).
-    width = 800;
-    height = 600;
+    return SIDEBAR_WIDTH;
+}
+
+void Game::GetDefaultSize(int& width, int& height) noexcept
+{
+    width = 600 + GetSidebarWidth();
+    height = 420;
+}
+
+float Game::GetAspectRatio() noexcept
+{
+    int width, height;
+    GetDefaultSize(width, height);
+    return (((float)width) / ((float)height));
 }
 #pragma endregion
 
@@ -175,20 +210,46 @@ void Game::GetDefaultSize(int& width, int& height) const noexcept
 void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
+    auto command_queue = m_deviceResources->GetCommandQueue();
+    m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
+    m_resourceDescriptors = std::make_unique<DescriptorHeap>(device, Descriptors::Count);
 
-    // TODO: Initialize device dependent objects here (independent of window size).
-    device;
+    ResourceUploadBatch resourceUpload(device);
+
+    resourceUpload.Begin();
+
+    wchar_t buff[MAX_PATH];
+    DX::FindMediaFile(buff, MAX_PATH, L"a2.spritefont");
+    m_font = std::make_unique<SpriteFont>(device, resourceUpload,
+        buff,
+        m_resourceDescriptors->GetCpuHandle(Descriptors::A2Font),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::A2Font));
+
+    RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
+    SpriteBatchPipelineStateDescription pd(rtState);
+    m_spriteBatch = std::make_unique<SpriteBatch>(device, resourceUpload, pd);
+
+    auto uploadResourcesFinished = resourceUpload.End(command_queue);
+
+    uploadResourcesFinished.wait();
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-    // TODO: Initialize windows-size dependent objects here.
+    D3D12_VIEWPORT viewport = m_deviceResources->GetScreenViewport();
+    m_spriteBatch->SetViewport(viewport);
+    // TODO: dont position fonts here!
+    m_fontPos.x = viewport.Width / 2.f;
+    m_fontPos.y = viewport.Height / 2.f;
 }
 
 void Game::OnDeviceLost()
 {
-    // TODO: Add Direct3D resource cleanup here.
+    m_graphicsMemory.reset();
+    m_font.reset();
+    m_resourceDescriptors.reset();
+    m_spriteBatch.reset();
 }
 
 void Game::OnDeviceRestored()

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\Repos\AppleWinCompanion\Debug\AppleWinCompanion.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2-sharplarge-bold.spritefont</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2-sharplarge-bolditalic.spritefont</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2-sharplarge-italic.spritefont</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2-sharplarge.spritefont</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2.spritefont</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>D:\Repos\AppleWinCompanion\AppleWinCompanion\Assets\a2sharp.spritefont</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
