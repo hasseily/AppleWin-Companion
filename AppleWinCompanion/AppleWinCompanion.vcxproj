@@ -206,6 +206,9 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\Background.jpg">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
     <Image Include="directx.ico" />
   </ItemGroup>
   <ItemGroup>

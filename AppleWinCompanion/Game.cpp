@@ -10,7 +10,14 @@ extern void ExitGame() noexcept;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+constexpr int APPLEWIN_WIDTH = 600;
+constexpr int APPLEWIN_HEIGHT = 420;
 constexpr int SIDEBAR_WIDTH = 200;
+
+// Size of the client frame inside the window
+int m_clientFrameWidth = 0;
+int m_clientFrameHeight = 0;
+float m_aspectRatio = 1.f;
 
 using Microsoft::WRL::ComPtr;
 
@@ -31,6 +38,13 @@ Game::~Game()
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+    // Set the frame and aspect sizes, we need to know what area of the window we're allowed to work with
+    SetClientFrameSize(width, height);  // Client area
+    RECT wR;
+    GetWindowRect(window, &wR);
+    // Now that we have the real window size, set the correct aspect ratio that we'll keep all through the life of the app
+    SetAspectRatio(static_cast<FLOAT>(wR.right - wR.left) / static_cast<FLOAT>(wR.bottom - wR.top));
+
     m_deviceResources->SetWindow(window, width, height);
 
     m_deviceResources->CreateDeviceResources();
@@ -193,16 +207,32 @@ int Game::GetSidebarWidth() noexcept
 
 void Game::GetDefaultSize(int& width, int& height) noexcept
 {
-    width = 600 + GetSidebarWidth();
-    height = 420;
+    width = APPLEWIN_WIDTH + GetSidebarWidth();
+    height = APPLEWIN_HEIGHT;
 }
 
 float Game::GetAspectRatio() noexcept
 {
-    int width, height;
-    GetDefaultSize(width, height);
-    return (((float)width) / ((float)height));
+    return m_aspectRatio;
 }
+
+void Game::GetClientFrameSize(int& width, int& height) noexcept
+{
+    width = m_clientFrameWidth;
+    height = m_clientFrameHeight;
+}
+
+void Game::SetAspectRatio(float aspect) noexcept
+{
+    m_aspectRatio = aspect;
+}
+
+void Game::SetClientFrameSize(const int width, const int height) noexcept
+{
+    m_clientFrameWidth = width;
+    m_clientFrameHeight = height;
+}
+
 #pragma endregion
 
 #pragma region Direct3D Resources

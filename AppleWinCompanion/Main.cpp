@@ -121,6 +121,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             (void)BeginPaint(hWnd, &ps);
+            // Don't bother filling the window background as it'll be all replaced by Direct3D
             EndPaint(hWnd, &ps);
         }
         break;
@@ -155,6 +156,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             game->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
         }
         break;
+
+    case WM_SIZING:
+        // Force the size to have a fixed aspect ratio
+    {
+        RECT* wantedRect = (RECT*)lParam;
+        wantedRect->right = static_cast<ULONG>(Game::GetAspectRatio() * (wantedRect->bottom - wantedRect->top)) + wantedRect->left;
+    }
 
     case WM_ENTERSIZEMOVE:
         s_in_sizemove = true;

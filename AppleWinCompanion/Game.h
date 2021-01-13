@@ -42,9 +42,12 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    static int Game::GetSidebarWidth() noexcept;
-    static void Game::GetDefaultSize(int& width, int& height) noexcept;
-    static float Game::GetAspectRatio() noexcept;
+    static int GetSidebarWidth() noexcept;
+    static void GetDefaultSize(int& width, int& height) noexcept;
+    static float GetAspectRatio() noexcept;
+    static void GetClientFrameSize(int& width, int& height) noexcept;
+    void SetAspectRatio(float aspect) noexcept;
+    void SetClientFrameSize(const int width, const int height) noexcept;
 
 private:
 
