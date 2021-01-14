@@ -1,12 +1,19 @@
 #pragma once
 
 constexpr UINT8 SIDEBAR_MAX_BLOCKS = 8;
+constexpr UINT8 SIDEBAR_OUTSIDE_MARGIN = 5; // margin around the sidebar
+constexpr UINT8 SIDEBAR_BLOCK_MARGIN = 5;   // margin between blocks
 
-constexpr UINT8 F_TXT_NORMAL	{ 0b0000'0001 };
-constexpr UINT8 F_TXT_BOLD		{ 0b0000'0010 };
-constexpr UINT8 F_TXT_ITALIC	{ 0b0000'0100 };
-constexpr UINT8 F_TXT_SHADOW	{ 0b0000'1000 };
-constexpr UINT8 F_TXT_OUTLINE	{ 0b0001'0000 };
+constexpr int APPLEWIN_WIDTH = 600;
+constexpr int APPLEWIN_HEIGHT = 420;
+constexpr int SIDEBAR_WIDTH = 200;
+
+constexpr UINT8 F_TXT_NORMAL{ 0b0000'0001 };
+constexpr UINT8 F_TXT_BOLD{ 0b0000'0010 };
+constexpr UINT8 F_TXT_ITALIC{ 0b0000'0100 };
+constexpr UINT8 F_TXT_SHADOW{ 0b0000'1000 };
+constexpr UINT8 F_TXT_OUTLINE{ 0b0001'0000 };
+
 
 enum
 {
@@ -41,6 +48,15 @@ public:
 	bool DeleteLastRegion();
 
 	void DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags);
+
+	// Properties
+	static float GetSidebarRatio() noexcept;
+	static void GetDefaultSize(int& width, int& height) noexcept;
+	static float GetAspectRatio() noexcept;
+	static void GetClientFrameSize(int& width, int& height) noexcept;
+	void SetAspectRatio(float aspect) noexcept;
+	void SetClientFrameSize(const int width, const int height) noexcept;
+
 };
 
 static std::wstring s2ws(const std::string& s);

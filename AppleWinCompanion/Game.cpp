@@ -15,20 +15,11 @@ using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 using namespace HA;
 
-
-constexpr int APPLEWIN_WIDTH = 600;
-constexpr int APPLEWIN_HEIGHT = 420;
-constexpr int SIDEBAR_WIDTH = 200;
-
-// Size of the client frame inside the window
-int m_clientFrameWidth = 0;
-int m_clientFrameHeight = 0;
-float m_aspectRatio = 1.f;
-
 // AppleWin video texture
 D3D12_SUBRESOURCE_DATA g_textureData;
 ComPtr<ID3D12Resource> g_textureUploadHeap;
 
+HWND m_window;
 SidebarManager m_sbM;
 
 Game::Game() noexcept(false)
@@ -52,12 +43,13 @@ Game::~Game()
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+    m_window = window;
     // Set the frame and aspect sizes, we need to know what area of the window we're allowed to work with
-    SetClientFrameSize(width, height);  // Client area
+    m_sbM.SetClientFrameSize(width, height);  // Client area
     RECT wR;
     GetWindowRect(window, &wR);
     // Now that we have the real window size, set the correct aspect ratio that we'll keep all through the life of the app
-    SetAspectRatio(static_cast<FLOAT>(wR.right - wR.left) / static_cast<FLOAT>(wR.bottom - wR.top));
+    m_sbM.SetAspectRatio(static_cast<FLOAT>(wR.right - wR.left) / static_cast<FLOAT>(wR.bottom - wR.top));
 
     m_gamePad = std::make_unique<GamePad>();
     m_keyboard = std::make_unique<Keyboard>();
@@ -264,27 +256,37 @@ void Game::Render()
     commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     // End drawing video texture
 
-    // Drawing text
+        // Drawing text
     // TODO: Remove demo rendering of text
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
     m_spriteBatch->Begin(commandList);
 
-    const wchar_t* output = L"Hello World";
+    int dw, dh, cw, ch;
+    SidebarManager::GetClientFrameSize(cw, ch);
+    SidebarManager::GetDefaultSize(dw, dh);
+    float fscale = ((float)cw) / ((float)dw);
+    m_fontPos.x = cw * (1.f - SidebarManager::GetSidebarRatio());
+    m_fontPos.y = 30.f * fscale;
+    Vector2 origin = { 0,0 };
 
-    Vector2 origin = m_font->MeasureString(output) / 2.f;
+    const wchar_t* output = L"Character 1\nHP - MP - XP";
+    m_font_bold->DrawString(m_spriteBatch.get(), output,
+        m_fontPos, Colors::White, 0.0f, origin, fscale);    // this one scales to always the same size
 
-    m_font->DrawString(m_spriteBatch.get(), output,
-        m_fontPos, Colors::White, 0.f, origin);
+    const wchar_t* output2 = L"Character 2\nHP - MP - XP";
+    m_font_regular->DrawString(m_spriteBatch.get(), output2,
+        m_fontPos + Vector2(0, 100.f * fscale), Colors::Red, 0.f, origin);
 
-    const wchar_t* output2 = L"Hello World";
-
-    m_font->DrawString(m_spriteBatch.get(), output2,
-        m_fontPos + Vector2(0, 20.f), Colors::Red, 0.f, origin);
+    const wchar_t* output3 = L"Character 3\nHP - MP - XP";
+    m_font_italic->DrawString(m_spriteBatch.get(), output3,
+        m_fontPos + Vector2(0, 200.f * fscale), Colors::Red, 0.f, origin);
 
     m_spriteBatch->End();
     // End drawing text
+
+
 
     PIXEndEvent(commandList);
 
@@ -351,46 +353,15 @@ void Game::OnWindowMoved()
 
 void Game::OnWindowSizeChanged(int width, int height)
 {
+    RECT cR;
+    GetClientRect(m_window, &cR);
+    m_sbM.SetClientFrameSize(cR.right - cR.left, cR.bottom - cR.top);  // Client area
     if (!m_deviceResources->WindowSizeChanged(width, height))
         return;
 
     CreateWindowSizeDependentResources();
 
     // TODO: Game window is being resized.
-}
-
-// Properties
-float Game::GetSidebarRatio() noexcept
-{
-    return ((float)SIDEBAR_WIDTH / (float)APPLEWIN_HEIGHT);
-}
-
-void Game::GetDefaultSize(int& width, int& height) noexcept
-{
-    width = (int)((float)APPLEWIN_WIDTH * (1.f + GetSidebarRatio()));
-    height = APPLEWIN_HEIGHT;
-}
-
-float Game::GetAspectRatio() noexcept
-{
-    return m_aspectRatio;
-}
-
-void Game::GetClientFrameSize(int& width, int& height) noexcept
-{
-    width = m_clientFrameWidth;
-    height = m_clientFrameHeight;
-}
-
-void Game::SetAspectRatio(float aspect) noexcept
-{
-    m_aspectRatio = aspect;
-}
-
-void Game::SetClientFrameSize(const int width, const int height) noexcept
-{
-    m_clientFrameWidth = width;
-    m_clientFrameHeight = height;
 }
 
 #pragma endregion
@@ -413,11 +384,23 @@ void Game::CreateDeviceDependentResources()
     resourceUpload.Begin();
 
     wchar_t buff[MAX_PATH];
-    DX::FindMediaFile(buff, MAX_PATH, L"a2.spritefont");
-    m_font = std::make_unique<SpriteFont>(device, resourceUpload,
-        buff,
-        m_resourceDescriptors->GetCpuHandle(Descriptors::A2Font),
-        m_resourceDescriptors->GetGpuHandle(Descriptors::A2Font));
+    DX::FindMediaFile(buff, MAX_PATH, L"a2-12pt.spritefont");
+    m_font_regular = std::make_unique<SpriteFont>(device, resourceUpload, buff,
+        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontRegular),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontRegular));
+    DX::FindMediaFile(buff, MAX_PATH, L"a2-bold-12pt.spritefont");
+    m_font_bold = std::make_unique<SpriteFont>(device, resourceUpload, buff,
+        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontBold),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontBold));
+    DX::FindMediaFile(buff, MAX_PATH, L"a2-italic-12pt.spritefont");
+    m_font_italic = std::make_unique<SpriteFont>(device, resourceUpload, buff,
+        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontItalic),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontItalic));
+    DX::FindMediaFile(buff, MAX_PATH, L"a2-bolditalic-12pt.spritefont");
+    m_font_bolditalic = std::make_unique<SpriteFont>(device, resourceUpload, buff,
+        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontBoldItalic),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontBoldItalic));
+
 
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
     SpriteBatchPipelineStateDescription pd(rtState);
@@ -526,12 +509,12 @@ void Game::CreateDeviceDependentResources()
     // Create vertex buffer.
 
     {
-        float sbR = GetSidebarRatio();
+        float sbR = SidebarManager::GetSidebarRatio();
         static const Vertex s_vertexData[4] =
         {
             { { -1.0f, -1.0f, 0.5f, 1.0f }, { 0.f, 1.f } },
-            { {  (1.f - sbR * 2.0f), -1.0f, 0.5f, 1.0f }, { 1.f, 1.f } },
-            { {  (1.f - sbR * 2.0f),  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
+            { { (1.f - sbR * 2.0f), -1.0f, 0.5f, 1.0f }, { 1.f, 1.f } },
+            { { (1.f - sbR * 2.0f),  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
             { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } },
         };
 
@@ -655,9 +638,6 @@ void Game::CreateWindowSizeDependentResources()
 {
     D3D12_VIEWPORT viewport = m_deviceResources->GetScreenViewport();
     m_spriteBatch->SetViewport(viewport);
-    // TODO: dont position fonts here!
-    m_fontPos.x = viewport.Width / 2.f;
-    m_fontPos.y = viewport.Height / 2.f;
 }
 
 void Game::OnDeviceLost()
@@ -668,7 +648,10 @@ void Game::OnDeviceLost()
     m_pipelineState.Reset();
     m_rootSignature.Reset();
     m_srvHeap.Reset();
-    m_font.reset();
+    m_font_regular.reset();
+    m_font_bold.reset();
+    m_font_italic.reset();
+    m_font_bolditalic.reset();
     m_resourceDescriptors.reset();
     m_spriteBatch.reset();
     m_graphicsMemory.reset();

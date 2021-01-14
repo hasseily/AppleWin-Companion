@@ -41,14 +41,6 @@ public:
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
 
-    // Properties
-    static float GetSidebarRatio() noexcept;
-    static void GetDefaultSize(int& width, int& height) noexcept;
-    static float GetAspectRatio() noexcept;
-    static void GetClientFrameSize(int& width, int& height) noexcept;
-    void SetAspectRatio(float aspect) noexcept;
-    void SetClientFrameSize(const int width, const int height) noexcept;
-
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();
 
@@ -85,11 +77,17 @@ private:
 
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
     std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
-    std::unique_ptr<DirectX::SpriteFont> m_font;
+    std::unique_ptr<DirectX::SpriteFont> m_font_regular;
+    std::unique_ptr<DirectX::SpriteFont> m_font_bold;
+    std::unique_ptr<DirectX::SpriteFont> m_font_italic;
+    std::unique_ptr<DirectX::SpriteFont> m_font_bolditalic;
 
     enum Descriptors
     {
-        A2Font,
+        A2FontRegular,
+        A2FontBold,
+        A2FontItalic,
+        A2FontBoldItalic,
         Count
     };
 

@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "resource.h"
 #include <WinUser.h>
+#include "SidebarManager.h"
 #include "GameLink.h"
 
 using namespace DirectX;
@@ -91,7 +92,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         // Create window
         int w, h;
-        g_game->GetDefaultSize(w, h);
+        SidebarManager::GetDefaultSize(w, h);
 
         RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
 
@@ -198,7 +199,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Force the size to have a fixed aspect ratio
     {
         RECT* wantedRect = (RECT*)lParam;
-        wantedRect->right = static_cast<ULONG>(Game::GetAspectRatio() * (wantedRect->bottom - wantedRect->top)) + wantedRect->left;
+        wantedRect->right = static_cast<ULONG>(SidebarManager::GetAspectRatio() * (wantedRect->bottom - wantedRect->top)) + wantedRect->left;
     }
 
     case WM_ENTERSIZEMOVE:
@@ -295,8 +296,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 int width = 800;
                 int height = 600;
-                if (game)
-                    game->GetDefaultSize(width, height);
+                SidebarManager::GetDefaultSize(width, height);
 
                 ShowWindow(hWnd, SW_SHOWNORMAL);
 

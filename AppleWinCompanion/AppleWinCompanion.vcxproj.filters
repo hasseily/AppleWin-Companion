@@ -64,22 +64,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Assets\a2-sharplarge-italic.spritefont">
+    <None Include="Assets\a2-12pt.spritefont">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\a2.spritefont">
+    <None Include="Assets\a2-bolditalic-12pt.spritefont">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\a2sharp.spritefont">
+    <None Include="Assets\a2-italic-12pt.spritefont">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Assets\a2-sharplarge.spritefont">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\a2-sharplarge-bold.spritefont">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\a2-sharplarge-bolditalic.spritefont">
+    <None Include="Assets\a2-bold-12pt.spritefont">
       <Filter>Assets</Filter>
     </None>
   </ItemGroup>

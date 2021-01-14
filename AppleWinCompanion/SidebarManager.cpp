@@ -2,10 +2,7 @@
 #include "SidebarManager.h"
 #include <vector>
 #include <iostream>
-#include "Game.h"
 
-constexpr UINT8 SIDEBAR_OUTSIDE_MARGIN = 5; // margin around the sidebar
-constexpr UINT8 SIDEBAR_BLOCK_MARGIN = 5;   // margin between blocks
 
 struct RegionStruct
 {
@@ -24,6 +21,10 @@ struct BlockStruct
 std::vector<RegionStruct> v_Regions;
 std::vector<BlockStruct> v_Blocks;
 
+// Size of the client frame inside the window
+int m_clientFrameWidth = 0;
+int m_clientFrameHeight = 0;
+float m_aspectRatio = 1.f;
 
 static std::wstring s2ws(const std::string& s)
 {
@@ -49,6 +50,40 @@ void SidebarManager::Initialize()
     SetNumberOfBlocks(1);
 }
 
+// Properties
+float SidebarManager::GetSidebarRatio() noexcept
+{
+    return ((float)SIDEBAR_WIDTH / ((float)(APPLEWIN_WIDTH + SIDEBAR_WIDTH)));
+}
+
+void SidebarManager::GetDefaultSize(int& width, int& height) noexcept
+{
+    width = (int)((float)APPLEWIN_WIDTH * (1.f + GetSidebarRatio()));
+    height = APPLEWIN_HEIGHT;
+}
+
+float SidebarManager::GetAspectRatio() noexcept
+{
+    return m_aspectRatio;
+}
+
+void SidebarManager::GetClientFrameSize(int& width, int& height) noexcept
+{
+    width = m_clientFrameWidth;
+    height = m_clientFrameHeight;
+}
+
+void SidebarManager::SetAspectRatio(float aspect) noexcept
+{
+    m_aspectRatio = aspect;
+}
+
+void SidebarManager::SetClientFrameSize(const int width, const int height) noexcept
+{
+    m_clientFrameWidth = width;
+    m_clientFrameHeight = height;
+}
+
 // Splits the sidebar into count blocks. Erases all info on the sidebar
 // Also deletes all regions
 // Returns number of blocks created
@@ -60,7 +95,7 @@ UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
     if (count > SIDEBAR_MAX_BLOCKS)
         blocksCount = SIDEBAR_MAX_BLOCKS;
     int wW, wH;
-    Game::GetDefaultSize(wW, wH);   // TODO: Check that the size is the usable area, not area with menu bar and the rest
+    GetDefaultSize(wW, wH);
     int blockHeight = (wH - 2*SIDEBAR_OUTSIDE_MARGIN) / blocksCount;
     int yStart = SIDEBAR_OUTSIDE_MARGIN;
     for (UINT8 i = 0; i < blocksCount; i++)
@@ -159,18 +194,21 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
 
 void SidebarManager::DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags)
 {
-    std::string fontFile = "a2-sharplarge.spritefont";
+    // TODO: Don't use the sprite fontfiles, they've already been loaded in GPU memory
+    // This method should update an array of region data, using fontid, text, color and font position calculated based on the region
+    // Then Game.cpp should call up this region array and render it inside Render()
+    std::string fontFile = "a2-12pt.spritefont";
     if (flags & F_TXT_BOLD & F_TXT_ITALIC)
     {
-        fontFile = "a2-sharplarge-bolditalic.spritefont";
+        fontFile = "a2-bolditalic-12pt.spritefont";
     }
     else if (flags & F_TXT_BOLD)
     {
-        fontFile = "a2-sharplarge-bold.spritefont";
+        fontFile = "a2-bold-12pt.spritefont";
     }
     else if (flags & F_TXT_ITALIC)
     {
-        fontFile = "a2-sharplarge-italic.spritefont";
+        fontFile = "a2-italic-12pt.spritefont";
     }
     // TODO: Shadow and Outline
     // See https://github.com/Microsoft/DirectXTK12/wiki/Drawing-text
