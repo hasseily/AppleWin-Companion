@@ -203,18 +203,18 @@ void SidebarManager::DrawTextInRegion(UINT8 regionId, std::string text, UINT8 fl
     // TODO: Don't use the sprite fontfiles, they've already been loaded in GPU memory
     // This method should update an array of region data, using fontid, text, color and font position calculated based on the region
     // Then Game.cpp should call up this region array and render it inside Render()
-    std::string fontFile = "a2-12pt.spritefont";
+    int fontId = 0;     // the array index of fontsAvailable
     if (flags & F_TXT_BOLD & F_TXT_ITALIC)
     {
-        fontFile = "a2-bolditalic-12pt.spritefont";
+        fontId = 3;
     }
     else if (flags & F_TXT_BOLD)
     {
-        fontFile = "a2-bold-12pt.spritefont";
+        fontId = 1;
     }
     else if (flags & F_TXT_ITALIC)
     {
-        fontFile = "a2-italic-12pt.spritefont";
+        fontId = 2;
     }
     // TODO: Shadow and Outline
     // See https://github.com/Microsoft/DirectXTK12/wiki/Drawing-text
