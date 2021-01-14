@@ -47,7 +47,13 @@ SidebarManager::SidebarManager()
 
 void SidebarManager::Initialize()
 {
-    SetNumberOfBlocks(1);
+	SetNumberOfBlocks(1);
+	fontsAvailable = {
+        L"a2-12pt.spritefont",
+        L"a2-bold-12pt.spritefont",
+        L"a2-italic-12pt.spritefont",
+        L"a2-bolditalic-12pt.spritefont"
+	};
 }
 
 // Properties

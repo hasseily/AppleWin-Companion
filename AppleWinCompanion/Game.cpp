@@ -7,6 +7,7 @@
 #include "SidebarManager.h"
 #include "GameLink.h"
 #include "HAUtils.h"
+#include <vector>
 
 extern void ExitGame() noexcept;
 
@@ -19,8 +20,10 @@ using namespace HA;
 D3D12_SUBRESOURCE_DATA g_textureData;
 ComPtr<ID3D12Resource> g_textureUploadHeap;
 
+// Instance variables
 HWND m_window;
 SidebarManager m_sbM;
+std::vector<std::unique_ptr<DirectX::SpriteFont>> m_spriteFonts;
 
 Game::Game() noexcept(false)
 {
@@ -272,15 +275,15 @@ void Game::Render()
     Vector2 origin = { 0,0 };
 
     const wchar_t* output = L"Character 1\nHP - MP - XP";
-    m_font_bold->DrawString(m_spriteBatch.get(), output,
+    m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), output,
         m_fontPos, Colors::White, 0.0f, origin, fscale);    // this one scales to always the same size
 
     const wchar_t* output2 = L"Character 2\nHP - MP - XP";
-    m_font_regular->DrawString(m_spriteBatch.get(), output2,
+    m_spriteFonts.at(1)->DrawString(m_spriteBatch.get(), output2,
         m_fontPos + Vector2(0, 100.f * fscale), Colors::Red, 0.f, origin);
 
     const wchar_t* output3 = L"Character 3\nHP - MP - XP";
-    m_font_italic->DrawString(m_spriteBatch.get(), output3,
+    m_spriteFonts.at(2)->DrawString(m_spriteBatch.get(), output3,
         m_fontPos + Vector2(0, 200.f * fscale), Colors::Red, 0.f, origin);
 
     m_spriteBatch->End();
@@ -377,30 +380,24 @@ void Game::CreateDeviceDependentResources()
     /// <summary>
     /// Start of Font resource uploading to GPU
     /// </summary>
-    m_resourceDescriptors = std::make_unique<DescriptorHeap>(device, Descriptors::Count);
+    m_resourceDescriptors = std::make_unique<DescriptorHeap>(device, (int)FontDescriptors::Count);
 
     ResourceUploadBatch resourceUpload(device);
 
     resourceUpload.Begin();
 
+    // Create the sprite fonts based on FontsAvailable
+    m_spriteFonts.clear();
     wchar_t buff[MAX_PATH];
-    DX::FindMediaFile(buff, MAX_PATH, L"a2-12pt.spritefont");
-    m_font_regular = std::make_unique<SpriteFont>(device, resourceUpload, buff,
-        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontRegular),
-        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontRegular));
-    DX::FindMediaFile(buff, MAX_PATH, L"a2-bold-12pt.spritefont");
-    m_font_bold = std::make_unique<SpriteFont>(device, resourceUpload, buff,
-        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontBold),
-        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontBold));
-    DX::FindMediaFile(buff, MAX_PATH, L"a2-italic-12pt.spritefont");
-    m_font_italic = std::make_unique<SpriteFont>(device, resourceUpload, buff,
-        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontItalic),
-        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontItalic));
-    DX::FindMediaFile(buff, MAX_PATH, L"a2-bolditalic-12pt.spritefont");
-    m_font_bolditalic = std::make_unique<SpriteFont>(device, resourceUpload, buff,
-        m_resourceDescriptors->GetCpuHandle(Descriptors::A2FontBoldItalic),
-        m_resourceDescriptors->GetGpuHandle(Descriptors::A2FontBoldItalic));
-
+    for (size_t i = 0; i < m_sbM.fontsAvailable.size(); i++)
+    {
+        DX::FindMediaFile(buff, MAX_PATH, m_sbM.fontsAvailable.at(i).c_str());
+        m_spriteFonts.push_back(
+            std::make_unique<SpriteFont>(device, resourceUpload, buff,
+                m_resourceDescriptors->GetCpuHandle(i),
+                m_resourceDescriptors->GetGpuHandle(i))
+        );
+    }
 
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
     SpriteBatchPipelineStateDescription pd(rtState);
@@ -642,16 +639,17 @@ void Game::CreateWindowSizeDependentResources()
 
 void Game::OnDeviceLost()
 {
+    // Reset fonts
+    for (size_t i = 0; i < m_spriteFonts.size(); i++)
+    {
+        m_spriteFonts.at(i).reset();
+    }
     m_texture.Reset();
     m_indexBuffer.Reset();
     m_vertexBuffer.Reset();
     m_pipelineState.Reset();
     m_rootSignature.Reset();
     m_srvHeap.Reset();
-    m_font_regular.reset();
-    m_font_bold.reset();
-    m_font_italic.reset();
-    m_font_bolditalic.reset();
     m_resourceDescriptors.reset();
     m_spriteBatch.reset();
     m_graphicsMemory.reset();

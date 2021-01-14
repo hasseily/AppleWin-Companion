@@ -7,7 +7,6 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 
-
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
 class Game final : public DX::IDeviceNotify
@@ -77,19 +76,6 @@ private:
 
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
     std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
-    std::unique_ptr<DirectX::SpriteFont> m_font_regular;
-    std::unique_ptr<DirectX::SpriteFont> m_font_bold;
-    std::unique_ptr<DirectX::SpriteFont> m_font_italic;
-    std::unique_ptr<DirectX::SpriteFont> m_font_bolditalic;
-
-    enum Descriptors
-    {
-        A2FontRegular,
-        A2FontBold,
-        A2FontItalic,
-        A2FontBoldItalic,
-        Count
-    };
 
     std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
     DirectX::SimpleMath::Vector2 m_fontPos;

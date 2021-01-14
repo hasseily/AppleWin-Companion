@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 constexpr UINT8 SIDEBAR_MAX_BLOCKS = 8;
 constexpr UINT8 SIDEBAR_OUTSIDE_MARGIN = 5; // margin around the sidebar
@@ -14,6 +15,19 @@ constexpr UINT8 F_TXT_ITALIC{ 0b0000'0100 };
 constexpr UINT8 F_TXT_SHADOW{ 0b0000'1000 };
 constexpr UINT8 F_TXT_OUTLINE{ 0b0001'0000 };
 
+enum class FontDescriptors
+{
+	A2FontRegular,
+	A2FontBold,
+	A2FontItalic,
+	A2FontBoldItalic,
+	Count
+};
+
+struct TextSpriteStruct
+{
+
+};
 
 enum
 {
@@ -49,7 +63,6 @@ public:
 
 	void DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags);
 
-	// Properties
 	static float GetSidebarRatio() noexcept;
 	static void GetDefaultSize(int& width, int& height) noexcept;
 	static float GetAspectRatio() noexcept;
@@ -57,6 +70,8 @@ public:
 	void SetAspectRatio(float aspect) noexcept;
 	void SetClientFrameSize(const int width, const int height) noexcept;
 
+	// Properties
+	std::vector<std::wstring> fontsAvailable;
 };
 
 static std::wstring s2ws(const std::string& s);
