@@ -198,8 +198,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_SIZING:
         // Force the size to have a fixed aspect ratio
     {
-        RECT* wantedRect = (RECT*)lParam;
-        wantedRect->right = static_cast<ULONG>(SidebarManager::GetAspectRatio() * (wantedRect->bottom - wantedRect->top)) + wantedRect->left;
+        RECT cR;  // Current Rect
+        GetWindowRect(hWnd, &cR);
+        RECT* pWR = (RECT*)lParam;  // Wanted Rect
+        if (cR.right == pWR->right)
+        {
+            pWR->right = static_cast<ULONG>(SidebarManager::GetAspectRatio() * (pWR->bottom - pWR->top)) + pWR->left;
+        }
+        else
+        {
+            pWR->bottom = static_cast<ULONG>((pWR->right - pWR->left) / SidebarManager::GetAspectRatio()) + pWR->top;
+        }
     }
 
     case WM_ENTERSIZEMOVE:
