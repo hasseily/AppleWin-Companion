@@ -64,7 +64,7 @@ float SidebarManager::GetSidebarRatio() noexcept
 
 void SidebarManager::GetDefaultSize(int& width, int& height) noexcept
 {
-    width = (int)((float)APPLEWIN_WIDTH * (1.f + GetSidebarRatio()));
+    width = APPLEWIN_WIDTH + SIDEBAR_WIDTH;
     height = APPLEWIN_HEIGHT;
 }
 
