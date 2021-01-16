@@ -88,7 +88,7 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
 {
     D3D12_RESOURCE_DESC txtDesc = {};
     txtDesc.MipLevels = txtDesc.DepthOrArraySize = 1;
-    txtDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+    txtDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     txtDesc.SampleDesc.Count = 1;
     txtDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
