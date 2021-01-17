@@ -153,7 +153,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         if (s_in_sizemove && game)
         {
-            game->Tick();
+            // don't need to redraw while the window is being resized
+            //game->Tick();
         }
         else
         {

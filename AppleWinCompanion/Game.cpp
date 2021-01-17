@@ -142,7 +142,11 @@ void Game::Update(DX::StepTimer const& timer)
 
     float elapsedTime = float(timer.GetElapsedSeconds());
 
-    // Game logic here
+    // TODO: Call method that looks inside the shm and calls SidebarManager's text drawing routines
+    // to display what we want.
+    // That method should first verify that we're running the correct program to display what we want
+    // So there should be a class that loads up configuration profiles about games to correctly display
+    // their info
 
     auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
@@ -260,7 +264,6 @@ void Game::Render()
     // End drawing video texture
 
         // Drawing text
-    // TODO: Remove demo rendering of text
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
@@ -270,9 +273,19 @@ void Game::Render()
     SidebarManager::GetClientFrameSize(cw, ch);
     SidebarManager::GetDefaultSize(dw, dh);
     float fscale = ((float)cw) / ((float)dw);
+    Vector2 origin = { 0,0 };
+
+    int sI = 0;
+    for (std::pair<UINT8, TextSpriteStruct> element : m_sbM.allTexts)
+    {
+        TextSpriteStruct tss = element.second;
+        m_spriteFonts.at(sI)->DrawString(m_spriteBatch.get(), tss.text.c_str(),
+            tss.position * fscale, tss.color, 0.f, origin, fscale);
+    }
+
+    /*
     m_fontPos.x = cw * (1.f - SidebarManager::GetSidebarRatio());
     m_fontPos.y = 30.f * fscale;
-    Vector2 origin = { 0,0 };
 
     const wchar_t* output = L"Character 1\nHP - MP - XP";
     m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), output,
@@ -285,7 +298,7 @@ void Game::Render()
     const wchar_t* output3 = L"Character 3\nHP - MP - XP";
     m_spriteFonts.at(2)->DrawString(m_spriteBatch.get(), output3,
         m_fontPos + Vector2(0, 200.f * fscale), Colors::Red, 0.f, origin);
-
+    */
     m_spriteBatch->End();
     // End drawing text
 

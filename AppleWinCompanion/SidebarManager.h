@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <SimpleMath.h>
 
-constexpr UINT8 SIDEBAR_MAX_BLOCKS = 8;
+constexpr UINT8 SIDEBAR_MAX_BLOCKS = 20;
 constexpr UINT8 SIDEBAR_OUTSIDE_MARGIN = 5; // margin around the sidebar
-constexpr UINT8 SIDEBAR_BLOCK_MARGIN = 5;   // margin between blocks
+constexpr UINT8 SIDEBAR_BLOCK_PADDING = 2;   // PADDING around each block
 
 constexpr int APPLEWIN_WIDTH = 600;
 constexpr int APPLEWIN_HEIGHT = 420;
@@ -24,9 +26,15 @@ enum class FontDescriptors
 	Count
 };
 
+// Any text to draw (or redraw) on the screen
+// TODO: See if we need a flag to determine if it should redraw
 struct TextSpriteStruct
 {
-
+	int blockId;
+	FontDescriptors fontId;
+	std::string text;
+	DirectX::XMVECTORF32 color;
+	DirectX::SimpleMath::Vector2 position;
 };
 
 enum
@@ -57,11 +65,12 @@ public:
 	// Sets the number of blocks to span for a given region. Set count=0 to span to the end.
 	// Returns the RegionId, or an error
 	// Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
-	UINT8 AddRegionWithBlocks(UINT8 count);
+	UINT8 AddRegionWithBlocks(std::string title, UINT8 count);
 	// Deletes the last region created
 	bool DeleteLastRegion();
 
-	void DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags);
+	void DrawTextInBlock(UINT8 blockId, std::string text);
+	void DrawTextInBlock(UINT8 blockId, std::string text, DirectX::XMVECTORF32 color, UINT8 flags);
 
 	static float GetSidebarRatio() noexcept;
 	static void GetDefaultSize(int& width, int& height) noexcept;
@@ -72,6 +81,7 @@ public:
 
 	// Properties
 	std::vector<std::wstring> fontsAvailable;
+	std::map<UINT8, TextSpriteStruct> allTexts;
 };
 
 static std::wstring s2ws(const std::string& s);

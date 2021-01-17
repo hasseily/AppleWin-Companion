@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 
+constexpr UINT8 DRAW_TEXT_REGIONID_OFFSET = 100;
+
 
 struct RegionStruct
 {
@@ -42,18 +44,23 @@ SidebarManager::SidebarManager()
 {
     v_Regions = {};
     v_Blocks = {};
+    v_Regions.reserve(SIDEBAR_MAX_BLOCKS);
+    v_Blocks.reserve(SIDEBAR_MAX_BLOCKS);
     Initialize();
 }
 
 void SidebarManager::Initialize()
 {
-	SetNumberOfBlocks(1);
-	fontsAvailable = {
-        L"a2-12pt.spritefont",
-        L"a2-bold-12pt.spritefont",
-        L"a2-italic-12pt.spritefont",
-        L"a2-bolditalic-12pt.spritefont"
-	};
+    fontsAvailable = {
+    L"a2-12pt.spritefont",
+    L"a2-bold-12pt.spritefont",
+    L"a2-italic-12pt.spritefont",
+    L"a2-bolditalic-12pt.spritefont"
+    };
+    v_Regions = std::vector<RegionStruct>();
+    v_Blocks = std::vector<BlockStruct>();
+    SetNumberOfBlocks(SIDEBAR_MAX_BLOCKS);
+    allTexts = std::map<UINT8, TextSpriteStruct>();
 }
 
 // Properties
@@ -95,6 +102,7 @@ void SidebarManager::SetClientFrameSize(const int width, const int height) noexc
 // Returns number of blocks created
 UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
 {
+    allTexts.clear();
     v_Regions.clear();
     v_Blocks.clear();
     UINT8 blocksCount = count;
@@ -103,13 +111,14 @@ UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
     int wW, wH;
     GetDefaultSize(wW, wH);
     int blockHeight = (wH - 2*SIDEBAR_OUTSIDE_MARGIN) / blocksCount;
-    int yStart = SIDEBAR_OUTSIDE_MARGIN;
+    int xStart = APPLEWIN_WIDTH + SIDEBAR_OUTSIDE_MARGIN;
+    int yStart = APPLEWIN_HEIGHT + SIDEBAR_OUTSIDE_MARGIN;
     for (UINT8 i = 0; i < blocksCount; i++)
     {
         RECT r = {
+            xStart,                         // LEFT
             yStart + i * blockHeight,       // TOP
-            SIDEBAR_OUTSIDE_MARGIN,         // LEFT
-            SIDEBAR_OUTSIDE_MARGIN,         // RIGHT
+            xStart + SIDEBAR_WIDTH,         // RIGHT
             yStart + (i + 1) * blockHeight  // BOTTOM
         };
         BlockStruct b = { i, r };
@@ -136,15 +145,13 @@ void SidebarManager::Clear()
 // Clears given block number
 bool SidebarManager::ClearBlock(UINT8 blockId)
 {
-    // TODO: clear block
-    blockId;
-    return false;
+    return (bool)allTexts.erase(blockId);
 }
 
 // Sets the number of blocks to span for a given region. Set count=0 to span to the end.
 // Returns the RegionId, or an error
 // Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
-UINT8 SidebarManager::AddRegionWithBlocks(UINT8 count)
+UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
 {
     RegionStruct latest = v_Regions.back();
     if (count == 0)
@@ -156,11 +163,14 @@ UINT8 SidebarManager::AddRegionWithBlocks(UINT8 count)
     }
     RegionStruct rs;
     rs.id = latest.id + 1;
-    rs.title = std::string("");
+    rs.title = title;
     rs.blockStart = latest.blockEnd + 1;
     rs.blockEnd = GetNumberOfBlocks() - 1;
     UnionRect(&rs.boundsRect, &v_Blocks.at(rs.blockStart).boundsRect, &v_Blocks.at(rs.blockEnd).boundsRect);
     v_Regions.push_back(rs);
+
+    // Also add the title to the region, where we use the same code as the block thing
+    DrawTextInBlock(rs.id + DRAW_TEXT_REGIONID_OFFSET, rs.title, DirectX::Colors::SeaShell, F_TXT_BOLD | F_TXT_ITALIC);
     return rs.id;
 }
 
@@ -198,28 +208,50 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
 // DRAWING SECTION
 ///////////////////////////////////////////////////////////////
 
-void SidebarManager::DrawTextInRegion(UINT8 regionId, std::string text, UINT8 flags)
+void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text)
 {
-    // TODO: Don't use the sprite fontfiles, they've already been loaded in GPU memory
-    // This method should update an array of region data, using fontid, text, color and font position calculated based on the region
+    DrawTextInBlock(blockId, text, DirectX::Colors::GhostWhite, F_TXT_NORMAL);
+}
+
+void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, DirectX::XMVECTORF32 color, UINT8 flags)
+{
+    // This method should update an array of block data, using fontid, text, color and font position calculated based on the region
     // Then Game.cpp should call up this region array and render it inside Render()
-    int fontId = 0;     // the array index of fontsAvailable
+
+    BlockStruct bs;
+    try {
+        bs = v_Blocks.at(blockId);
+    }
+    catch (std::out_of_range const& exc) {
+        char buf[sizeof(exc.what()) + 100];
+        sprintf_s(buf, "Block doesn't exist: %s\n", exc.what());
+        OutputDebugStringA(buf);
+        return;
+    };
+
+    TextSpriteStruct tss;
+    tss.fontId = FontDescriptors::A2FontRegular;
+    tss.color = color;  // e.g. DirectX::Colors::GhostWhite
+    tss.text = text;
+    tss.blockId = blockId;
+
     if (flags & F_TXT_BOLD & F_TXT_ITALIC)
     {
-        fontId = 3;
+        tss.fontId = FontDescriptors::A2FontBoldItalic;
     }
     else if (flags & F_TXT_BOLD)
     {
-        fontId = 1;
+        tss.fontId = FontDescriptors::A2FontBold;
     }
     else if (flags & F_TXT_ITALIC)
     {
-        fontId = 2;
+        tss.fontId = FontDescriptors::A2FontItalic;
     }
     // TODO: Shadow and Outline
     // See https://github.com/Microsoft/DirectXTK12/wiki/Drawing-text
 
-    // TODO: Draw
-    regionId;
-    text;
+    // Calculate drawing position
+    tss.position = { (float)(bs.boundsRect.left + SIDEBAR_BLOCK_PADDING), (float)(bs.boundsRect.top + SIDEBAR_BLOCK_PADDING) };
+    
+    allTexts.insert_or_assign(blockId, tss);
 }
