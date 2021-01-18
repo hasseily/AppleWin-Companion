@@ -16,6 +16,7 @@ constexpr UINT8 F_TXT_BOLD{ 0b0000'0010 };
 constexpr UINT8 F_TXT_ITALIC{ 0b0000'0100 };
 constexpr UINT8 F_TXT_SHADOW{ 0b0000'1000 };
 constexpr UINT8 F_TXT_OUTLINE{ 0b0001'0000 };
+constexpr UINT8 F_TXT_REGIONTITLE{ 0b0010'0000 };
 
 enum class FontDescriptors
 {

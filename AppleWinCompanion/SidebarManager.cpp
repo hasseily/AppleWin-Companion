@@ -97,9 +97,12 @@ void SidebarManager::SetClientFrameSize(const int width, const int height) noexc
     m_clientFrameHeight = height;
 }
 
-// Splits the sidebar into count blocks. Erases all info on the sidebar
-// Also deletes all regions
+// Splits the sidebar into count blocks. Erases all info on the sidebar. Also deletes all regions.
+// All size calculations are done on the default size. It is up to Game.cpp to scale accordingly
 // Returns number of blocks created
+// TODO:    This system does not allow for a region header, so region title will overlap.
+//          Maybe make each block the size of a text line + padding, and when creating a region
+//          allocate the first block to the region header
 UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
 {
     allTexts.clear();
@@ -170,7 +173,7 @@ UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
     v_Regions.push_back(rs);
 
     // Also add the title to the region, where we use the same code as the block thing
-    DrawTextInBlock(rs.id + DRAW_TEXT_REGIONID_OFFSET, rs.title, DirectX::Colors::SeaShell, F_TXT_BOLD | F_TXT_ITALIC);
+    DrawTextInBlock(rs.id + DRAW_TEXT_REGIONID_OFFSET, rs.title, DirectX::Colors::SeaShell, F_TXT_REGIONTITLE);
     return rs.id;
 }
 
@@ -234,8 +237,15 @@ void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, DirectX::X
     tss.color = color;  // e.g. DirectX::Colors::GhostWhite
     tss.text = text;
     tss.blockId = blockId;
+    // Default drawing position for inside a block. Overridden when drawing region title
+    tss.position = { (float)(bs.boundsRect.left + SIDEBAR_BLOCK_PADDING), (float)(bs.boundsRect.top - SIDEBAR_BLOCK_PADDING/2) };
 
-    if (flags & F_TXT_BOLD & F_TXT_ITALIC)
+    if (flags & F_TXT_REGIONTITLE)
+    {
+        tss.fontId = FontDescriptors::A2FontBold;   // TODO: Have a special region title font
+        tss.position = { (float)(bs.boundsRect.left + SIDEBAR_BLOCK_PADDING), (float)(bs.boundsRect.top + SIDEBAR_BLOCK_PADDING) };
+    }
+    else if (flags & F_TXT_BOLD & F_TXT_ITALIC)
     {
         tss.fontId = FontDescriptors::A2FontBoldItalic;
     }
@@ -250,8 +260,7 @@ void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, DirectX::X
     // TODO: Shadow and Outline
     // See https://github.com/Microsoft/DirectXTK12/wiki/Drawing-text
 
-    // Calculate drawing position
-    tss.position = { (float)(bs.boundsRect.left + SIDEBAR_BLOCK_PADDING), (float)(bs.boundsRect.top + SIDEBAR_BLOCK_PADDING) };
+
     
     allTexts.insert_or_assign(blockId, tss);
 }
