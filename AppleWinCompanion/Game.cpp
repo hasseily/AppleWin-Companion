@@ -5,6 +5,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "SidebarManager.h"
+#include "SidebarContent.h"
 #include "GameLink.h"
 #include "HAUtils.h"
 #include <vector>
@@ -23,12 +24,14 @@ ComPtr<ID3D12Resource> g_textureUploadHeap;
 // Instance variables
 HWND m_window;
 SidebarManager m_sbM;
+SidebarContent m_sbC;
 std::vector<std::unique_ptr<DirectX::SpriteFont>> m_spriteFonts;
 
 Game::Game() noexcept(false)
 {
     g_textureData = {};
     m_sbM = SidebarManager();
+    m_sbC = SidebarContent();
 
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);

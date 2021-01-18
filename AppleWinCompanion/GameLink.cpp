@@ -178,9 +178,9 @@ int GameLink::Init()
 	g_mmap_handle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, GAMELINK_MMAP_NAME);
 	if (g_mmap_handle)
 	{
-		UINT8 *shm = reinterpret_cast<UINT8*>(
-			MapViewOfFile(g_mmap_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
-			);
+//		UINT8 *shm = reinterpret_cast<UINT8*>(
+//			MapViewOfFile(g_mmap_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
+//			);
 		g_p_shared_memory = reinterpret_cast<sSharedMemoryMap_R4*>(
 			MapViewOfFile(g_mmap_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
 			);
@@ -255,8 +255,11 @@ void GameLink::SetSoundVolume(UINT8 main, UINT8 mockingboard)
 		break;
 	case WAIT_ABANDONED:
 		ReleaseMutex(g_mutex_handle);
+		[[fallthrough]];
 	case WAIT_TIMEOUT:
+		[[fallthrough]];
 	case WAIT_FAILED:
+		[[fallthrough]];
 	default:
 		break;
 	}
@@ -275,8 +278,11 @@ int GameLink::GetSoundVolumeMain()
 		break;
 	case WAIT_ABANDONED:
 		ReleaseMutex(g_mutex_handle);
+		[[fallthrough]];
 	case WAIT_TIMEOUT:
+		[[fallthrough]];
 	case WAIT_FAILED:
+		[[fallthrough]];
 	default:
 		break;
 	}
@@ -295,8 +301,11 @@ int GameLink::GetSoundVolumeMockingboard()
 		break;
 	case WAIT_ABANDONED:
 		ReleaseMutex(g_mutex_handle);
+		[[fallthrough]];
 	case WAIT_TIMEOUT:
+		[[fallthrough]];
 	case WAIT_FAILED:
+		[[fallthrough]];
 	default:
 		break;
 	}
@@ -306,7 +315,6 @@ int GameLink::GetSoundVolumeMockingboard()
 void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 {
 	DWORD dwWaitResult = WaitForSingleObject(g_mutex_handle, 3000);
-	int ret = 0;
 	switch (dwWaitResult)
 	{
 	case WAIT_OBJECT_0:
@@ -330,8 +338,11 @@ void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 	}
 	case WAIT_ABANDONED:
 		ReleaseMutex(g_mutex_handle);
+		[[fallthrough]];
 	case WAIT_TIMEOUT:
+		[[fallthrough]];
 	case WAIT_FAILED:
+		[[fallthrough]];
 	default:
 		break;
 	}
@@ -352,6 +363,7 @@ sFramebufferInfo GameLink::GetFrameBufferInfo()	// TODO: STACK OVERFLOW
 		break;
 	case WAIT_TIMEOUT:
 		OutputDebugStringW(L"Timeout in getting mutex for frame buffer info. Still grabbing the read-only data anyway\n");
+		[[fallthrough]];
 	default:
 		sSharedMMapFrame_R1* f = &g_p_shared_memory->frame;
 		fbI.frameBuffer = f->buffer;

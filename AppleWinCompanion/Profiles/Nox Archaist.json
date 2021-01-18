@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "name": "Nox Archaist",
+    "author": "Rikkles",
+    "revision": 1,
+    "date": "2021.01.18",
+    "api_version": 1
+  },
+  "tables": {
+    "adventurers": {
+      "$01": "Bridgit",
+      "$02": "Cutter",
+      "$03": "Blade"
+    },
+    "armor": {
+      "$00": "None",
+      "$01": "Cloth Robes"
+    },
+    "weapons": {
+      "$01": "Fists",
+      "$02": "Hunting Knife"
+    }
+  },
+  "sidebar": [
+    {
+      "type": "RegionStart",
+      "template": "$0",
+      "vars": [
+        {
+          "memstart": 1234,
+          "memend": 1234,
+          "lookup": {
+            "$ref": "#/tables/adventurers"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: $0",
+      "vars": [
+        {
+          "memstart": 1235,
+          "memend": 1235,
+          "lookup": {
+            "$ref": "#/tables/weapons"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: $0",
+      "vars": [
+        {
+          "memstart": 1236,
+          "memend": 1236,
+          "lookup": {
+            "$ref": "#/tables/weapons"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "$0",
+      "vars": [
+        {
+          "memstart": 1237,
+          "memend": 1237,
+          "lookup": {
+            "$ref": "#/tables/adventurers"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: $0",
+      "vars": [
+        {
+          "memstart": 1238,
+          "memend": 1238,
+          "lookup": {
+            "$ref": "#/tables/weapons"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: $0",
+      "vars": [
+        {
+          "memstart": 1239,
+          "memend": 1239,
+          "lookup": {
+            "$ref": "#/tables/weapons"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "Other Info",
+      "vars": []
+    },
+    {
+      "type": "Content",
+      "template": "Gold: $0",
+      "vars": [
+        {
+          "memstart": 1240,
+          "memend": 1241
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "Test: $0",
+      "vars": [
+        {
+          "memstart": 1242,
+          "memend": 1242,
+          "value": [
+            {
+              "op": "*",
+              "rhs": 0.5
+            },
+            {
+              "op": "+",
+              "rhs": 100
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

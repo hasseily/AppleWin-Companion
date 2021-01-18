@@ -8,6 +8,9 @@
       <UniqueIdentifier>8a34dacd-eea3-4ee1-8a95-fb2caf1eb9d6</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Profiles">
+      <UniqueIdentifier>{6589ab55-b730-42bc-b923-3d97cfd66ccf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -34,6 +37,7 @@
     <ClInclude Include="GameLink.h" />
     <ClInclude Include="SidebarManager.h" />
     <ClInclude Include="HAUtils.h" />
+    <ClInclude Include="SidebarContent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -45,6 +49,7 @@
     <ClCompile Include="SidebarManager.cpp" />
     <ClCompile Include="GameLink.cpp" />
     <ClCompile Include="HAUtils.cpp" />
+    <ClCompile Include="SidebarContent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -75,6 +80,9 @@
     </None>
     <None Include="Assets\a2-bold-12pt.spritefont">
       <Filter>Assets</Filter>
+    </None>
+    <None Include="Profiles\Nox Archaist.json">
+      <Filter>Profiles</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

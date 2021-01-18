@@ -27,6 +27,15 @@ enum class FontDescriptors
 	Count
 };
 
+enum class BlockType
+{
+	Content,
+	RegionStart,
+	RegionEnd,
+	Empty,
+	Count
+};
+
 // Any text to draw (or redraw) on the screen
 // TODO: See if we need a flag to determine if it should redraw
 struct TextSpriteStruct

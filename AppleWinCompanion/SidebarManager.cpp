@@ -3,9 +3,6 @@
 #include <vector>
 #include <iostream>
 
-constexpr UINT8 DRAW_TEXT_REGIONID_OFFSET = 100;
-
-
 struct RegionStruct
 {
     UINT8 id;
@@ -18,6 +15,7 @@ struct BlockStruct
 {
     UINT8 id;
     RECT boundsRect;
+    BlockType type;
 };
 
 std::vector<RegionStruct> v_Regions;
@@ -124,7 +122,7 @@ UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
             xStart + SIDEBAR_WIDTH,         // RIGHT
             yStart + (i + 1) * blockHeight  // BOTTOM
         };
-        BlockStruct b = { i, r };
+        BlockStruct b = { i, r, BlockType::Empty };
         v_Blocks.push_back(b);
     }
     return blocksCount;
@@ -148,10 +146,20 @@ void SidebarManager::Clear()
 // Clears given block number
 bool SidebarManager::ClearBlock(UINT8 blockId)
 {
-    return (bool)allTexts.erase(blockId);
+    try
+    {
+        v_Blocks[blockId].type = BlockType::Empty;
+        BOOL ret = (bool)allTexts.erase(blockId);
+        return ret;
+    }
+    catch (std::out_of_range const& exc) {
+        std::cerr << "Error clearing block: " << blockId << "\n" << exc.what() << "\n";
+        return false;
+    }
 }
 
 // Sets the number of blocks to span for a given region. Set count=0 to span to the end.
+// Right now we only reserve the top block for the region title. We don't do anything special with the last block
 // Returns the RegionId, or an error
 // Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
 UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
@@ -172,8 +180,18 @@ UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
     UnionRect(&rs.boundsRect, &v_Blocks.at(rs.blockStart).boundsRect, &v_Blocks.at(rs.blockEnd).boundsRect);
     v_Regions.push_back(rs);
 
+    // Set the block types to content for this region, except for the first block which will be RegionStart
+    if (count > 1)  // a block count of 1 would just have the region title
+    {
+        for (size_t i = 1; i < count; i++)
+        {
+            v_Blocks[rs.blockStart + i].type = BlockType::Content;
+        }
+    }
+
     // Also add the title to the region, where we use the same code as the block thing
-    DrawTextInBlock(rs.id + DRAW_TEXT_REGIONID_OFFSET, rs.title, DirectX::Colors::SeaShell, F_TXT_REGIONTITLE);
+    v_Blocks[rs.blockStart].type = BlockType::RegionStart;
+    DrawTextInBlock(rs.blockStart, rs.title, DirectX::Colors::SeaShell, F_TXT_REGIONTITLE);
     return rs.id;
 }
 
