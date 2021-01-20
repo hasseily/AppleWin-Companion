@@ -23,9 +23,9 @@ ComPtr<ID3D12Resource> g_textureUploadHeap;
 
 // Instance variables
 HWND m_window;
-SidebarManager m_sbM;
-SidebarContent m_sbC;
-std::vector<std::unique_ptr<DirectX::SpriteFont>> m_spriteFonts;
+static SidebarManager m_sbM;
+static SidebarContent m_sbC;
+static std::vector<std::unique_ptr<DirectX::SpriteFont>> m_spriteFonts;
 
 Game::Game() noexcept(false)
 {
@@ -145,12 +145,6 @@ void Game::Update(DX::StepTimer const& timer)
 
     float elapsedTime = float(timer.GetElapsedSeconds());
 
-    // TODO: Call method that looks inside the shm and calls SidebarManager's text drawing routines
-    // to display what we want.
-    // That method should first verify that we're running the correct program to display what we want
-    // So there should be a class that loads up configuration profiles about games to correctly display
-    // their info
-
     auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
     {
@@ -232,6 +226,8 @@ void Game::Render()
         }
         m_previousFrameCount = currFrameCount;
     }
+
+    m_sbC.UpdateAllSidebarText(&m_sbM);
 
     // Prepare the command list to render a new frame.
     m_deviceResources->Prepare();

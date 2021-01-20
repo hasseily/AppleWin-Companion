@@ -76,6 +76,8 @@ public:
 	// Returns the RegionId, or an error
 	// Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
 	UINT8 AddRegionWithBlocks(std::string title, UINT8 count);
+	// Delete all regions
+	void DeleteAll();
 	// Deletes the last region created
 	bool DeleteLastRegion();
 

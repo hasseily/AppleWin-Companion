@@ -56,6 +56,9 @@
 #include <stdexcept>
 
 #include <stdio.h>
+#include <iostream>
+#include <string>
+#include <map>
 
 #include "BufferHelpers.h"
 #include "CommonStates.h"

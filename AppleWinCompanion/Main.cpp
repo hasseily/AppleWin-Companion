@@ -210,6 +210,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             pWR->bottom = static_cast<ULONG>((pWR->right - pWR->left) / SidebarManager::GetAspectRatio()) + pWR->top;
         }
+        break;
     }
 
     case WM_ENTERSIZEMOVE:
@@ -290,7 +291,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
         GameLink::SendKeystroke((UINT)wParam, lParam);
+        break;
     case WM_KEYUP:
+        [[fallthrough]];
     case WM_SYSKEYUP:
         Keyboard::ProcessMessage(message, wParam, lParam);
         break;

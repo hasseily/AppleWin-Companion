@@ -143,7 +143,7 @@ static sSharedMemoryMap_R4* g_p_shared_memory;
 static sSharedMMapBuffer_R1* g_p_outbuf;
 
 constexpr int MEMORY_MAP_CORE_SIZE = sizeof(sSharedMemoryMap_R4);
-static int* ramPointer;
+static UINT8* ramPointer;
 
 //------------------------------------------------------------------------------
 // Mutex methods
@@ -188,7 +188,7 @@ int GameLink::Init()
 		if (g_p_shared_memory)
 		{
 			// The ram is right after the end of the shared memory pointer here
-			ramPointer = reinterpret_cast<int*>(g_p_shared_memory + 1);
+			ramPointer = reinterpret_cast<UINT8*>(g_p_shared_memory + 1);
 			if (GetMutex()) {
 				return 1;
 			}
@@ -211,7 +211,9 @@ void GameLink::Destroy()
 
 std::string GameLink::GetEmulatedProgramName()
 {
-	return std::string(g_p_shared_memory->program);
+	if (g_p_shared_memory)
+		return std::string(g_p_shared_memory->program);
+	return "";
 }
 
 int GameLink::GetMemorySize()
@@ -219,7 +221,7 @@ int GameLink::GetMemorySize()
 	return g_p_shared_memory->ram_size;
 }
 
-int* GameLink::GetMemoryBasePointer()
+UINT8* GameLink::GetMemoryBasePointer()
 {
 	return ramPointer;
 }

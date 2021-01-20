@@ -1,102 +1,207 @@
 {
   "meta": {
-    "name": "Nox Archaist",
+    "name": "NOXARCHAIST",
     "author": "Rikkles",
     "revision": 1,
     "date": "2021.01.18",
     "api_version": 1
   },
-  "tables": {
-    "adventurers": {
-      "$01": "Bridgit",
-      "$02": "Cutter",
-      "$03": "Blade"
-    },
-    "armor": {
-      "$00": "None",
-      "$01": "Cloth Robes"
-    },
-    "weapons": {
-      "$01": "Fists",
-      "$02": "Hunting Knife"
-    }
-  },
   "sidebar": [
     {
       "type": "RegionStart",
-      "template": "$0",
+      "template": "{}",
       "vars": [
         {
-          "memstart": 1234,
-          "memend": 1234,
-          "lookup": {
-            "$ref": "#/tables/adventurers"
-          }
+          "memstart": "0x1164B",
+          "length": 15,
+          "type": "ascii_high"
         }
       ]
     },
     {
       "type": "Content",
-      "template": "LH: $0",
+      "template": "LH: {}",
       "vars": [
         {
-          "memstart": 1235,
-          "memend": 1235,
-          "lookup": {
-            "$ref": "#/tables/weapons"
-          }
+          "memstart": "0x1165A",
+          "length": 16,
+          "type": "ascii_high"
         }
       ]
     },
     {
       "type": "Content",
-      "template": "RH: $0",
+      "template": "RH: {}",
       "vars": [
         {
-          "memstart": 1236,
-          "memend": 1236,
-          "lookup": {
-            "$ref": "#/tables/weapons"
-          }
+          "memstart": "0x1166D",
+          "length": 16,
+          "type": "ascii_high"
         }
       ]
     },
     {
       "type": "RegionStart",
-      "template": "$0",
+      "template": "{}",
       "vars": [
         {
-          "memstart": 1237,
-          "memend": 1237,
-          "lookup": {
-            "$ref": "#/tables/adventurers"
-          }
+          "memstart": "0x116CB",
+          "length": 15,
+          "type": "ascii_high"
         }
       ]
     },
     {
       "type": "Content",
-      "template": "LH: $0",
+      "template": "LH: {}",
       "vars": [
         {
-          "memstart": 1238,
-          "memend": 1238,
-          "lookup": {
-            "$ref": "#/tables/weapons"
-          }
+          "memstart": "0x116DA",
+          "length": 16,
+          "type": "ascii_high"
         }
       ]
     },
     {
       "type": "Content",
-      "template": "RH: $0",
+      "template": "RH: {}",
       "vars": [
         {
-          "memstart": 1239,
-          "memend": 1239,
-          "lookup": {
-            "$ref": "#/tables/weapons"
-          }
+          "memstart": "0x116ED",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "{}",
+      "vars": [
+        {
+          "memstart": "0x1174B",
+          "length": 15,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: {}",
+      "vars": [
+        {
+          "memstart": "0x1175A",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: {}",
+      "vars": [
+        {
+          "memstart": "0x1176D",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "{}",
+      "vars": [
+        {
+          "memstart": "0x117CB",
+          "length": 15,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: {}",
+      "vars": [
+        {
+          "memstart": "0x117DA",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: {}",
+      "vars": [
+        {
+          "memstart": "0x117ED",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "{}",
+      "vars": [
+        {
+          "memstart": "0x1184B",
+          "length": 15,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: {}",
+      "vars": [
+        {
+          "memstart": "0x1185A",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: {}",
+      "vars": [
+        {
+          "memstart": "0x1186D",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "RegionStart",
+      "template": "{}",
+      "vars": [
+        {
+          "memstart": "0x118CB",
+          "length": 15,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "LH: {}",
+      "vars": [
+        {
+          "memstart": "0x118DA",
+          "length": 16,
+          "type": "ascii_high"
+        }
+      ]
+    },
+    {
+      "type": "Content",
+      "template": "RH: {}",
+      "vars": [
+        {
+          "memstart": "0x118ED",
+          "length": 16,
+          "type": "ascii_high"
         }
       ]
     },
@@ -107,22 +212,24 @@
     },
     {
       "type": "Content",
-      "template": "Gold: $0",
+      "template": "Lockpicks: {}",
       "vars": [
         {
-          "memstart": 1240,
-          "memend": 1241
+          "memstart": "0x421",
+          "length": 1,
+          "type": "int_bigendian"
         }
       ]
     },
     {
       "type": "Content",
-      "template": "Test: $0",
+      "template": "Test: {}",
       "vars": [
         {
-          "memstart": 1242,
-          "memend": 1242,
-          "value": [
+          "memstart": "0x1242",
+          "length": 1,
+          "type": "int_bigendian",
+          "modifiers": [
             {
               "op": "*",
               "rhs": 0.5
@@ -137,3 +244,38 @@
     }
   ]
 }
+
+// TODO: Implement table lookup to possibly translate ids to strings
+//       Nox doesn't need those because the text is in memory 
+/* EXAMPLES OF REFERENCE USAGE
+  "tables": {
+    "adventurers": {
+      "0x1": "Bridgit",
+      "0x2": "Cutter",
+      "0x3": "Blade"
+    },
+    "armor": {
+      "0x0": "None",
+      "0x1": "Cloth Robes"
+    },
+    "weapons": {
+      "0x1": "Fists",
+      "0x2": "Hunting Knife"
+    }
+  },
+  "sidebar": [
+    {
+      "type": "RegionStart",
+      "template": "{}",
+      "vars": [
+        {
+          "memstart": 1234,
+          "memend": 1234,
+          "type" : "lookup",
+          "lookup": {
+            "$ref": "#/tables/adventurers"
+          }
+        }
+      ]
+    },
+  */

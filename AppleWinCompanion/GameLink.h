@@ -32,7 +32,7 @@ namespace GameLink
 	
 	extern std::string GetEmulatedProgramName();
 	extern int GetMemorySize();
-	extern int* GetMemoryBasePointer();
+	extern UINT8* GetMemoryBasePointer();
 	extern bool IsActive();
 	extern bool IsTrackingOnly();
 

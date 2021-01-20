@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "SidebarManager.h"
 #include <vector>
-#include <iostream>
 
 struct RegionStruct
 {
@@ -18,8 +17,8 @@ struct BlockStruct
     BlockType type;
 };
 
-std::vector<RegionStruct> v_Regions;
-std::vector<BlockStruct> v_Blocks;
+static std::vector<RegionStruct> v_Regions;
+static std::vector<BlockStruct> v_Blocks;
 
 // Size of the client frame inside the window
 int m_clientFrameWidth = 0;
@@ -40,10 +39,6 @@ static std::wstring s2ws(const std::string& s)
 
 SidebarManager::SidebarManager()
 {
-    v_Regions = {};
-    v_Blocks = {};
-    v_Regions.reserve(SIDEBAR_MAX_BLOCKS);
-    v_Blocks.reserve(SIDEBAR_MAX_BLOCKS);
     Initialize();
 }
 
@@ -57,6 +52,8 @@ void SidebarManager::Initialize()
     };
     v_Regions = std::vector<RegionStruct>();
     v_Blocks = std::vector<BlockStruct>();
+    v_Regions.reserve(SIDEBAR_MAX_BLOCKS);
+    v_Blocks.reserve(SIDEBAR_MAX_BLOCKS);
     SetNumberOfBlocks(SIDEBAR_MAX_BLOCKS);
     allTexts = std::map<UINT8, TextSpriteStruct>();
 }
@@ -113,7 +110,7 @@ UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
     GetDefaultSize(wW, wH);
     int blockHeight = (wH - 2*SIDEBAR_OUTSIDE_MARGIN) / blocksCount;
     int xStart = APPLEWIN_WIDTH + SIDEBAR_OUTSIDE_MARGIN;
-    int yStart = APPLEWIN_HEIGHT + SIDEBAR_OUTSIDE_MARGIN;
+    int yStart = SIDEBAR_OUTSIDE_MARGIN;
     for (UINT8 i = 0; i < blocksCount; i++)
     {
         RECT r = {
@@ -153,7 +150,7 @@ bool SidebarManager::ClearBlock(UINT8 blockId)
         return ret;
     }
     catch (std::out_of_range const& exc) {
-        std::cerr << "Error clearing block: " << blockId << "\n" << exc.what() << "\n";
+        std::cerr << "Error clearing block: " << blockId << "\n" << exc.what() << std::endl;
         return false;
     }
 }
@@ -164,19 +161,30 @@ bool SidebarManager::ClearBlock(UINT8 blockId)
 // Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
 UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
 {
-    RegionStruct latest = v_Regions.back();
-    if (count == 0)
-        count = GetNumberOfBlocks() - latest.blockEnd - 1;
-
-    if ((GetNumberOfBlocks() - latest.blockEnd - 1) > count)
-    {
-        return ERR_NO_BLOCKS_REMAINING;
-    }
     RegionStruct rs;
-    rs.id = latest.id + 1;
+    if (v_Regions.empty())
+    {
+        if (count == 0)
+            count = GetNumberOfBlocks() - 1;
+        rs.id = 0;
+        rs.blockStart = 0;
+    }
+    else {
+        RegionStruct latest = v_Regions.back();
+        if (count == 0)
+            count = GetNumberOfBlocks() - latest.blockEnd - 1;
+
+        if ((GetNumberOfBlocks() - latest.blockEnd - 1) < count)
+        {
+            return ERR_NO_BLOCKS_REMAINING;
+        }
+        rs.id = latest.id + 1;
+        rs.blockStart = latest.blockEnd + 1;
+    }
+
     rs.title = title;
-    rs.blockStart = latest.blockEnd + 1;
-    rs.blockEnd = GetNumberOfBlocks() - 1;
+    rs.blockEnd = rs.blockStart + count - 1;
+
     UnionRect(&rs.boundsRect, &v_Blocks.at(rs.blockStart).boundsRect, &v_Blocks.at(rs.blockEnd).boundsRect);
     v_Regions.push_back(rs);
 
@@ -191,8 +199,16 @@ UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
 
     // Also add the title to the region, where we use the same code as the block thing
     v_Blocks[rs.blockStart].type = BlockType::RegionStart;
-    DrawTextInBlock(rs.blockStart, rs.title, DirectX::Colors::SeaShell, F_TXT_REGIONTITLE);
+    DrawTextInBlock(rs.blockStart, rs.title, DirectX::Colors::CadetBlue, F_TXT_REGIONTITLE);
     return rs.id;
+}
+
+// Deletes all regions
+void SidebarManager::DeleteAll()
+{
+    do
+    {
+    } while (DeleteLastRegion());
 }
 
 // Deletes the last region created
@@ -215,7 +231,7 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
         rs = v_Regions.at(regionId);
     }
     catch (std::out_of_range const& exc) {
-        std::cerr << "No region with id: " << regionId << "\n" << exc.what() << "\n";
+        std::cerr << "No region with id: " << regionId << "\n" << exc.what() << std::endl;
         return false;
     }
     for (UINT8 i = rs.blockStart; i < rs.blockEnd; i++)
