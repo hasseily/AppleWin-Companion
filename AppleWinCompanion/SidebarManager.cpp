@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "SidebarManager.h"
 #include <vector>
+#include <DirectXPackedVector.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 struct RegionStruct
 {
@@ -9,12 +14,14 @@ struct RegionStruct
     std::string title;
     UINT8 blockStart;
     UINT8 blockEnd;
+    XMVECTOR color;
 };
 struct BlockStruct
 {
     UINT8 id;
     RECT boundsRect;
     BlockType type;
+    XMVECTOR color;
 };
 
 static std::vector<RegionStruct> v_Regions;
@@ -116,7 +123,7 @@ UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
             xStart + SIDEBAR_WIDTH,         // RIGHT
             yStart + (i + 1) * blockHeight  // BOTTOM
         };
-        BlockStruct b = { i, r, BlockType::Empty };
+        BlockStruct b = { i, r, BlockType::Empty, Colors::Black };
         v_Blocks.push_back(b);
     }
     return blocksCount;
@@ -143,6 +150,7 @@ bool SidebarManager::ClearBlock(UINT8 blockId)
     try
     {
         v_Blocks[blockId].type = BlockType::Empty;
+        v_Blocks[blockId].color = Colors::Black;
         BOOL ret = (bool)allTexts.erase(blockId);
         return ret;
     }
@@ -156,7 +164,7 @@ bool SidebarManager::ClearBlock(UINT8 blockId)
 // Right now we only reserve the top block for the region title. We don't do anything special with the last block
 // Returns the RegionId, or an error
 // Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
-UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
+UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count, XMVECTOR* color)
 {
     RegionStruct rs;
     if (v_Regions.empty())
@@ -180,6 +188,7 @@ UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
     }
 
     rs.title = title;
+    rs.color = *color;
     rs.blockEnd = rs.blockStart + count - 1;
 
     UnionRect(&rs.boundsRect, &v_Blocks.at(rs.blockStart).boundsRect, &v_Blocks.at(rs.blockEnd).boundsRect);
@@ -196,7 +205,7 @@ UINT8 SidebarManager::AddRegionWithBlocks(std::string title, UINT8 count)
 
     // Also add the title to the region, where we use the same code as the block thing
     v_Blocks[rs.blockStart].type = BlockType::RegionStart;
-    DrawTextInBlock(rs.blockStart, rs.title, DirectX::Colors::CadetBlue, F_TXT_REGIONTITLE);
+    DrawTextInBlock(rs.blockStart, rs.title, &rs.color, F_TXT_REGIONTITLE);
     return rs.id;
 }
 
@@ -242,16 +251,13 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
 // DRAWING SECTION
 ///////////////////////////////////////////////////////////////
 
-void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text)
-{
-    DrawTextInBlock(blockId, text, DirectX::Colors::GhostWhite, F_TXT_NORMAL);
-}
-
-void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, DirectX::XMVECTORF32 color, UINT8 flags)
+void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, XMVECTOR* color, UINT8 flags)
 {
     // This method should update an array of block data, using fontid, text, color and font position calculated based on the region
     // Then Game.cpp should call up this region array and render it inside Render()
 
+    if (blockId >= SIDEBAR_MAX_BLOCKS)
+        return;
     BlockStruct bs;
     try {
         bs = v_Blocks.at(blockId);
@@ -265,7 +271,7 @@ void SidebarManager::DrawTextInBlock(UINT8 blockId, std::string text, DirectX::X
 
     TextSpriteStruct tss;
     tss.fontId = FontDescriptors::A2FontRegular;
-    tss.color = color;  // e.g. DirectX::Colors::GhostWhite
+    tss.color = *color;  // e.g. DirectX::Colors::GhostWhite
     tss.text = text;
     tss.blockId = blockId;
     // Default drawing position for inside a block. Overridden when drawing region title

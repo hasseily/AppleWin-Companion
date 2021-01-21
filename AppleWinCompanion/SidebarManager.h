@@ -43,7 +43,7 @@ struct TextSpriteStruct
 	int blockId = 0;
 	FontDescriptors fontId = FontDescriptors::A2FontRegular;
 	std::string text = "";
-	DirectX::XMVECTORF32 color = DirectX::Colors::GhostWhite;
+	DirectX::XMVECTOR color = DirectX::Colors::GhostWhite;
 	DirectX::SimpleMath::Vector2 position = DirectX::SimpleMath::Vector2();
 };
 
@@ -75,14 +75,13 @@ public:
 	// Sets the number of blocks to span for a given region. Set count=0 to span to the end.
 	// Returns the RegionId, or an error
 	// Check that the returned UINT8 > ERR_RANGE_BEGIN for errors
-	UINT8 AddRegionWithBlocks(std::string title, UINT8 count);
+	UINT8 AddRegionWithBlocks(std::string title, UINT8 count, DirectX::XMVECTOR* color);
 	// Delete all regions
 	void DeleteAll();
 	// Deletes the last region created
 	bool DeleteLastRegion();
 
-	void DrawTextInBlock(UINT8 blockId, std::string text);
-	void DrawTextInBlock(UINT8 blockId, std::string text, DirectX::XMVECTORF32 color, UINT8 flags);
+	void DrawTextInBlock(UINT8 blockId, std::string text, DirectX::XMVECTOR* color, UINT8 flags);
 
 	static float GetSidebarRatio() noexcept;
 	static void GetDefaultSize(int& width, int& height) noexcept;
