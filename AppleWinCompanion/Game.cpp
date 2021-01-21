@@ -66,7 +66,7 @@ void Game::Initialize(HWND window, int width, int height)
 
     m_previousFrameCount = 0;
     m_previousGameLinkFrameSequence = 0;
-    m_useGameLink = false;
+    m_useGameLink = true;
 
     m_deviceResources->SetWindow(window, width, height);
 
@@ -282,25 +282,8 @@ void Game::Render()
             tss.position * fscale, tss.color, 0.f, origin, fscale);
     }
 
-    /*
-    m_fontPos.x = cw * (1.f - SidebarManager::GetSidebarRatio());
-    m_fontPos.y = 30.f * fscale;
-
-    const wchar_t* output = L"Character 1\nHP - MP - XP";
-    m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), output,
-        m_fontPos, Colors::White, 0.0f, origin, fscale);    // this one scales to always the same size
-
-    const wchar_t* output2 = L"Character 2\nHP - MP - XP";
-    m_spriteFonts.at(1)->DrawString(m_spriteBatch.get(), output2,
-        m_fontPos + Vector2(0, 100.f * fscale), Colors::Red, 0.f, origin);
-
-    const wchar_t* output3 = L"Character 3\nHP - MP - XP";
-    m_spriteFonts.at(2)->DrawString(m_spriteBatch.get(), output3,
-        m_fontPos + Vector2(0, 200.f * fscale), Colors::Red, 0.f, origin);
-    */
     m_spriteBatch->End();
     // End drawing text
-
 
 
     PIXEndEvent(commandList);

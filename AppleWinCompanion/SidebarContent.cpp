@@ -64,7 +64,7 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string name)
         {
             if (isFirstRegion)
             {
-                title = FormatBlockText(aj);
+                title = FormatBlockText(&aj);
                 regstart = 0;
                 isFirstRegion = false; // finished parsing first region header
             }
@@ -73,7 +73,7 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string name)
                 // we finished the previous region
                 // let's send it over to the manager
                 sbM->AddRegionWithBlocks(title, i - regstart);
-                title = FormatBlockText(aj);
+                title = FormatBlockText(&aj);
                 regstart = i;
             }
         }
@@ -134,11 +134,12 @@ json SidebarContent::ParseProfile(fs::path filepath)
     }
 */
 
-std::string SidebarContent::SerializeVariable(nlohmann::json j)
+std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
 {
     if (pmem == NULL)
         return "";
 
+    json j = *pvar;
     // initialize variables
     // OutputDebugStringA((j.dump()+string("\n")).c_str());
     string s = "";
@@ -225,10 +226,11 @@ std::string SidebarContent::SerializeVariable(nlohmann::json j)
 }
 */
 
-std::string SidebarContent::FormatBlockText(json data)
+std::string SidebarContent::FormatBlockText(json* pdata)
 {
 // serialize the SHM variables into strings
 // and directly put them in the format string
+    json data = *pdata;
     string txt = "";
     try
     {
@@ -241,7 +243,7 @@ std::string SidebarContent::FormatBlockText(json data)
     array<string, SIDEBAR_MAX_VARS_IN_BLOCK> sVars;
     for (size_t i = 0; i < data["vars"].size(); i++)
     {
-        sVars[i] = SerializeVariable(data["vars"][i]);
+        sVars[i] = SerializeVariable(&(data["vars"][i]));
         txt.replace(txt.find(SIDEBAR_FORMAT_PLACEHOLDER), SIDEBAR_FORMAT_PLACEHOLDER.length(), sVars[i]);
     }
     return txt;
@@ -258,7 +260,7 @@ void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
     UINT8 i = 0;
     for (auto& element : m_activeProfile["sidebar"])
     {
-        if (!UpdateBlockText(sbM, i, element))
+        if (!UpdateBlockText(sbM, i, &element))
         {
             std::cout << "Error updating block: " << i << endl;
         }
@@ -287,8 +289,9 @@ void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
 }
 */
 
-bool SidebarContent::UpdateBlockText(SidebarManager* sbM, UINT8 blockId, json data)
+bool SidebarContent::UpdateBlockText(SidebarManager* sbM, UINT8 blockId, json* pdata)
 {
+    json data = *pdata;
     // OutputDebugStringA((data.dump()+string("\n")).c_str());
     //sbM.ClearBlock(blockId);
 
@@ -304,7 +307,7 @@ bool SidebarContent::UpdateBlockText(SidebarManager* sbM, UINT8 blockId, json da
     if (!isGood)
         return false;
 
-    string s = FormatBlockText(data);
+    string s = FormatBlockText(pdata);
     // OutputDebugStringA(s.c_str());
     // OutputDebugStringA("\n");
     sbM->DrawTextInBlock(blockId, s, color, flags);

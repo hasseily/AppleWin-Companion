@@ -13,12 +13,12 @@ public:
 	void Initialize();
 	bool setActiveProfile(SidebarManager* sbM, std::string name);
 	void UpdateAllSidebarText(SidebarManager* sbM);
-	bool UpdateBlockText(SidebarManager* sbM, UINT8 blockId, nlohmann::json data);
+	bool UpdateBlockText(SidebarManager* sbM, UINT8 blockId, nlohmann::json* pdata);
 private:
 	void LoadProfilesFromDisk();
 	nlohmann::json ParseProfile(std::filesystem::path filepath);
-	std::string SerializeVariable(nlohmann::json var);
-	std::string FormatBlockText(nlohmann::json data);
+	std::string SerializeVariable(nlohmann::json* pvar);
+	std::string FormatBlockText(nlohmann::json* pdata);
 
 	std::map<std::string, nlohmann::json> m_allProfiles;
 	nlohmann::json m_activeProfile;
