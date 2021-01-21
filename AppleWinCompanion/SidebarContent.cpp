@@ -86,8 +86,7 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string name)
 
 void SidebarContent::LoadProfileUsingDialog()
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
-        COINIT_DISABLE_OLE1DDE);
+    HRESULT hr = CoInitializeEx(NULL, COINIT_DISABLE_OLE1DDE);
     if (SUCCEEDED(hr))
     {
         IFileOpenDialog* pFileOpen;
