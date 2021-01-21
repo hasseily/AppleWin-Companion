@@ -7,6 +7,7 @@
 #include "resource.h"
 #include <WinUser.h>
 #include "SidebarManager.h"
+#include "SidebarContent.h"
 #include "GameLink.h"
 
 using namespace DirectX;
@@ -341,6 +342,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Parse the menu selections:
         switch (wmId)
         {
+        case ID_FILE_ACTIVATEPROFILE:
+        {
+            if (game)
+            {
+                game->MenuActivateProfile();
+            }
+            break;
+        }
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;

@@ -40,11 +40,11 @@ enum class BlockType
 // TODO: See if we need a flag to determine if it should redraw
 struct TextSpriteStruct
 {
-	int blockId;
-	FontDescriptors fontId;
-	std::string text;
-	DirectX::XMVECTORF32 color;
-	DirectX::SimpleMath::Vector2 position;
+	int blockId = 0;
+	FontDescriptors fontId = FontDescriptors::A2FontRegular;
+	std::string text = "";
+	DirectX::XMVECTORF32 color = DirectX::Colors::GhostWhite;
+	DirectX::SimpleMath::Vector2 position = DirectX::SimpleMath::Vector2();
 };
 
 enum

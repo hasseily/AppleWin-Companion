@@ -40,6 +40,9 @@ public:
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
 
+    // Menu commands
+    void MenuActivateProfile();
+
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();
 

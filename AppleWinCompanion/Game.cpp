@@ -364,6 +364,16 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 #pragma endregion
 
+#pragma region Menu commands
+
+void Game::MenuActivateProfile()
+{
+    m_sbC.LoadProfileUsingDialog();
+    return;
+}
+
+#pragma endregion
+
 #pragma region Direct3D Resources
 // These are the resources that depend on the device.
 void Game::CreateDeviceDependentResources()
