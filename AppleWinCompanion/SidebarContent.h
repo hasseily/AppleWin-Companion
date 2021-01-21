@@ -11,9 +11,9 @@ class SidebarContent
 public:
 	SidebarContent::SidebarContent();
 	void Initialize();
-	void LoadProfileUsingDialog();
-	bool setActiveProfile(SidebarManager* sbM, std::string name);
-	bool OpenProfile(std::filesystem::directory_entry entry);
+	void LoadProfileUsingDialog(SidebarManager* sbM);
+	bool setActiveProfile(SidebarManager* sbM, std::string* name, bool force);
+	std::string OpenProfile(std::filesystem::directory_entry entry);
 	void UpdateAllSidebarText(SidebarManager* sbM);
 	bool UpdateBlockText(SidebarManager* sbM, UINT8 blockId, nlohmann::json* pdata);
 private:

@@ -29,27 +29,27 @@ void SidebarContent::Initialize()
     }
 }
 
-bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string name)
+bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name, bool force=false)
 {
-    if (name == "")
+    if (*name == "")
     {
         // this happens if we can't read the shm
         // TODO: load a default profile that says that AW isn't running?
         // Or put other default info?
         return false;
     }
-    if (m_activeProfile["meta"]["name"] == name)
+    if ((!force) && (m_activeProfile["meta"]["name"] == *name))
     {
         // no change
         return true;
     }
     json j;
     try {
-        j = m_allProfiles.at(name);
+        j = m_allProfiles.at(*name);
     }
     catch (std::out_of_range const& exc) {
-        m_activeProfile["meta"]["name"] = name;
-        std::cerr << "Profile Name not found: " << name << endl << exc.what() << endl;
+        m_activeProfile["meta"]["name"] = *name;
+        std::cerr << "Profile Name not found: " << *name << endl << exc.what() << endl;
         return false;
     }
 
@@ -80,11 +80,11 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string name)
         }
     }
     // close the last region
-    sbM->AddRegionWithBlocks(title, (UINT8)(m_activeProfile["sidebar"].size()) - regstart - 1);
+    sbM->AddRegionWithBlocks(title, (UINT8)(m_activeProfile["sidebar"].size()) - regstart);
     return true;
 }
 
-void SidebarContent::LoadProfileUsingDialog()
+void SidebarContent::LoadProfileUsingDialog(SidebarManager* sbM)
 {
     HRESULT hr = CoInitializeEx(NULL, COINIT_DISABLE_OLE1DDE);
     if (SUCCEEDED(hr))
@@ -109,11 +109,13 @@ void SidebarContent::LoadProfileUsingDialog()
                 {
                     PWSTR pszFilePath;
                     hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
+                    // TODO: PASS THAT TO THE PROFILE ACTIVATION
                     // Display the file name to the user.
                     if (SUCCEEDED(hr))
                     {
-                        MessageBoxW(NULL, pszFilePath, L"File Path", MB_OK);
+                        fs::directory_entry dir = fs::directory_entry(pszFilePath);
+                        std::string profileName = OpenProfile(dir);
+                        setActiveProfile(sbM, &profileName, true);
                         CoTaskMemFree(pszFilePath);
                     }
                     pItem->Release();
@@ -138,7 +140,7 @@ void SidebarContent::LoadProfilesFromDisk()
     }
 }
 
-bool SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
+std::string SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
 {
     if (entry.is_regular_file() && (entry.path().extension().compare("json")))
     {
@@ -149,11 +151,11 @@ bool SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
             if (!name.empty())
             {
                 m_allProfiles[name] = profile;
-                return true;
+                return name;
             }
         }
     }
-    return false;
+    return "";
 }
 
 json SidebarContent::ParseProfile(fs::path filepath)
@@ -163,8 +165,6 @@ json SidebarContent::ParseProfile(fs::path filepath)
         std::ifstream i(filepath);
         json j;
         i >> j;
-        j;
-        // OutputDebugStringA(j.dump().c_str());
         return j;
     }
     catch (detail::parse_error err) {
@@ -251,6 +251,21 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
         s = to_string(x);
         return s;
     }
+    else if (j["type"] == "lookup")
+    {
+        try
+        {
+            int x = *(pmem + memoffset);
+            char buf[500];
+            snprintf(buf, 500, "%s/0x%02x", j["lookup"].get<std::string>().c_str(), x);
+            json::json_pointer jp(buf);
+            return m_activeProfile.value(jp, "UNKNOWN VALUE");
+        }
+        catch (exception e)
+        {
+            OutputDebugStringA(e.what());
+        }
+    }
     return s;
 }
 
@@ -301,7 +316,7 @@ std::string SidebarContent::FormatBlockText(json* pdata)
 void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
 {
     // TODO: Probably shouldn't be calling this method every frame!!!
-    if (!setActiveProfile(sbM, GameLink::GetEmulatedProgramName()))
+    if (!setActiveProfile(sbM, &(GameLink::GetEmulatedProgramName())))
     {
         return;
     }

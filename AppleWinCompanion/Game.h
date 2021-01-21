@@ -46,6 +46,9 @@ public:
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();
 
+    // Properties
+    bool shouldRender;
+
 private:
 
     void Update(DX::StepTimer const& timer);

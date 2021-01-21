@@ -94,10 +94,7 @@ void SidebarManager::SetClientFrameSize(const int width, const int height) noexc
 
 // Splits the sidebar into count blocks. Erases all info on the sidebar. Also deletes all regions.
 // All size calculations are done on the default size. It is up to Game.cpp to scale accordingly
-// Returns number of blocks created
-// TODO:    This system does not allow for a region header, so region title will overlap.
-//          Maybe make each block the size of a text line + padding, and when creating a region
-//          allocate the first block to the region header
+// Returns number of blocks created. When creating a region, allocate the first block to the region header
 UINT8 SidebarManager::SetNumberOfBlocks(UINT8 count)
 {
     allTexts.clear();
@@ -234,7 +231,7 @@ bool SidebarManager::ClearRegion(UINT8 regionId)
         std::cerr << "No region with id: " << regionId << "\n" << exc.what() << std::endl;
         return false;
     }
-    for (UINT8 i = rs.blockStart; i < rs.blockEnd; i++)
+    for (UINT8 i = rs.blockStart; i <= rs.blockEnd; i++)
     {
         ClearBlock(i);
     }

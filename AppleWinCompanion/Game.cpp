@@ -67,6 +67,7 @@ void Game::Initialize(HWND window, int width, int height)
     m_previousFrameCount = 0;
     m_previousGameLinkFrameSequence = 0;
     m_useGameLink = true;
+    shouldRender = true;
 
     m_deviceResources->SetWindow(window, width, height);
 
@@ -170,6 +171,9 @@ void Game::Update(DX::StepTimer const& timer)
 // Draws the scene.
 void Game::Render()
 {
+    // use shouldRender to pause/activate rendering
+    if (!shouldRender)
+        return;
     // Don't try to render anything before the first Update.
     uint32_t currFrameCount = m_timer.GetFrameCount();
     if (currFrameCount == 0)
@@ -368,7 +372,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 void Game::MenuActivateProfile()
 {
-    m_sbC.LoadProfileUsingDialog();
+    m_sbC.LoadProfileUsingDialog(&m_sbM);
     return;
 }
 
@@ -402,6 +406,7 @@ void Game::CreateDeviceDependentResources()
                 m_resourceDescriptors->GetCpuHandle(i),
                 m_resourceDescriptors->GetGpuHandle(i))
         );
+        m_spriteFonts.back()->SetDefaultCharacter('.');
     }
 
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);

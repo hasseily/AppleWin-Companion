@@ -346,7 +346,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             if (game)
             {
+                game->shouldRender = false;
                 game->MenuActivateProfile();
+                game->shouldRender = true;
             }
             break;
         }
