@@ -329,11 +329,6 @@ std::string SidebarContent::FormatBlockText(nlohmann::json* pdata)
 
 void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
 {
-    // TODO: Probably shouldn't be calling this method every frame!!!
-    if (!setActiveProfile(sbM, &GameLink::GetEmulatedProgramName()))
-    {
-        return;
-    }
     // OutputDebugStringA((m_activeProfile["sidebar"].dump()+string("\n")).c_str());
     UINT8 i = 0;
     for (auto& element : m_activeProfile["sidebar"])

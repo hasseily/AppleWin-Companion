@@ -108,8 +108,8 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
             txtDesc.Height = fbI.height;
             g_textureData.pData = fbI.frameBuffer;
             g_textureData.SlicePitch = fbI.bufferLength;
-            sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
-            OutputDebugStringA(buf);
+            //sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
+            //OutputDebugStringA(buf);
         }
     }
     // If GameLink is active, it could return a framebuffer of size (0,0).
@@ -194,8 +194,8 @@ void Game::Render()
                 {
                     // GameLink isn't doing anything, could be dead
                        // Revert to the original texture
-                    sprintf_s(buf, "Destroying GameLink. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                    OutputDebugStringA(buf);
+                    //sprintf_s(buf, "Destroying GameLink. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                    //OutputDebugStringA(buf);
                     GameLink::Destroy();
                     m_useGameLink = false;
                     ChooseTexture();
@@ -203,8 +203,8 @@ void Game::Render()
                 else
                 {
                     // GameLink is waiting for a game, the texture size is (0,0)
-                    sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                    OutputDebugStringA(buf);
+                    //sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                    //OutputDebugStringA(buf);
                 }
             }
             else
@@ -214,8 +214,8 @@ void Game::Render()
                     // A game was activated on AppleWin since our last check, let's set the texture the right size
                     ChooseTexture();
                 }
-                sprintf_s(buf, "Gamelink active. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                OutputDebugStringA(buf);
+                //sprintf_s(buf, "Gamelink active. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                //OutputDebugStringA(buf);
                 ChooseTexture();
             }
             m_previousGameLinkFrameSequence = seq;
@@ -223,8 +223,8 @@ void Game::Render()
         else
         {
             // Look for an active gamelink
-            sprintf_s(buf, "Looking for active GameLink. Cur: %d - Prev: %d\n", currFrameCount, m_previousFrameCount);
-            OutputDebugStringA(buf);
+            //sprintf_s(buf, "Looking for active GameLink. Cur: %d - Prev: %d\n", currFrameCount, m_previousFrameCount);
+            //OutputDebugStringA(buf);
             m_useGameLink = true;
             ChooseTexture();
         }

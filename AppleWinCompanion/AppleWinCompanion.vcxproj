@@ -220,10 +220,10 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="applewincompanion.ico" />
     <Image Include="Assets\Background.jpg">
       <DeploymentContent>true</DeploymentContent>
     </Image>
-    <Image Include="directx.ico" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest" />
@@ -243,6 +243,9 @@
     </None>
     <None Include="packages.config" />
     <None Include="Profiles\Nox Archaist.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Profiles\_Empty.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
   </ItemGroup>

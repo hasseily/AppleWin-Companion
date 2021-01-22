@@ -56,10 +56,10 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="directx.ico">
+    <Image Include="Assets\Background.jpg">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\Background.jpg">
+    <Image Include="applewincompanion.ico">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -83,6 +83,9 @@
       <Filter>Assets</Filter>
     </None>
     <None Include="Profiles\Nox Archaist.json">
+      <Filter>Profiles</Filter>
+    </None>
+    <None Include="Profiles\_Empty.json">
       <Filter>Profiles</Filter>
     </None>
   </ItemGroup>
