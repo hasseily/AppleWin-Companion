@@ -39,6 +39,7 @@
     <ClInclude Include="HAUtils.h" />
     <ClInclude Include="SidebarContent.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Sidebar.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -51,6 +52,7 @@
     <ClCompile Include="GameLink.cpp" />
     <ClCompile Include="HAUtils.cpp" />
     <ClCompile Include="SidebarContent.cpp" />
+    <ClCompile Include="Sidebar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -86,6 +88,12 @@
       <Filter>Profiles</Filter>
     </None>
     <None Include="Profiles\_Empty.json">
+      <Filter>Profiles</Filter>
+    </None>
+    <None Include="Profiles\Nox Archaist - Pro.json">
+      <Filter>Profiles</Filter>
+    </None>
+    <None Include="Profiles\Nox Archaist - Extended.json">
       <Filter>Profiles</Filter>
     </None>
   </ItemGroup>

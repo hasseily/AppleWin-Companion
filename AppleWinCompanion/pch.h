@@ -59,6 +59,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <array>
 
 #include "BufferHelpers.h"
 #include "CommonStates.h"

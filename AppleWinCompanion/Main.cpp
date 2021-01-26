@@ -26,6 +26,16 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
+// extra window area compared to client area
+// necessary to properly scale using the right aspect ratio
+int m_extraWindowWidth = 0;
+int m_extraWindowHeight = 0;
+// Initial window width and height, so we can't reduce the size further, and
+// user can always go back to "original" size
+int m_initialWindowWidth = 0;
+int m_initialWindowHeight = 0;
+
+
 namespace
 {
     std::unique_ptr<Game> g_game;
@@ -93,14 +103,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         // Create window
         int w, h;
-        SidebarManager::GetDefaultSize(w, h);
+        SidebarManager::GetBaseSize(w, h);
 
         RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
 
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, TRUE);
+        m_initialWindowWidth = rc.right - rc.left;
+        m_initialWindowHeight = rc.bottom - rc.top;
 
         HWND hwnd = CreateWindowExW(0, L"AppleWinCompanionWindowClass", L"AppleWinCompanion", WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
+            CW_USEDEFAULT, CW_USEDEFAULT, m_initialWindowWidth, m_initialWindowHeight, nullptr, nullptr, hInstance,
             nullptr);
         // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"AppleWinCompanionWindowClass", L"AppleWinCompanion", WS_POPUP,
         // to default to fullscreen.
@@ -113,9 +125,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()) );
 
-        GetClientRect(hwnd, &rc);
+        WINDOWINFO wi;
+        wi.cbSize = sizeof(WINDOWINFO);
+        GetWindowInfo(hwnd, &wi);
+        m_extraWindowWidth = (wi.rcWindow.right - wi.rcClient.right) + (wi.rcClient.left - wi.rcWindow.left);
+        m_extraWindowHeight = (wi.rcWindow.bottom - wi.rcClient.bottom) + (wi.rcClient.top - wi.rcWindow.top);
 
-        g_game->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
+
+        g_game->Initialize(hwnd, wi.rcClient.right - wi.rcClient.left, wi.rcClient.bottom - wi.rcClient.top);
     }
 
     // Main message loop
@@ -154,8 +171,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         if (s_in_sizemove && game)
         {
-            // don't need to redraw while the window is being resized
-            //game->Tick();
+            // redraw while the window is being resized or get artifacts
+            game->Tick();
         }
         else
         {
@@ -200,17 +217,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_SIZING:
         // Force the size to have a fixed aspect ratio
     {
-        RECT cR;  // Current Rect
-        GetWindowRect(hWnd, &cR);
+        WINDOWINFO wi;
+        wi.cbSize = sizeof(WINDOWINFO);
+        GetWindowInfo(hWnd, &wi);
         RECT* pWR = (RECT*)lParam;  // Wanted Rect
-        if (cR.right == pWR->right)
+        
+        if (wi.rcClient.right == pWR->right)
         {
-            pWR->right = static_cast<ULONG>(SidebarManager::GetAspectRatio() * (pWR->bottom - pWR->top)) + pWR->left;
+            pWR->right = static_cast<ULONG>(SidebarManager::GetAspectRatio() * (wi.rcClient.bottom - wi.rcClient.top)) + pWR->left + m_extraWindowWidth;
         }
         else
         {
-            pWR->bottom = static_cast<ULONG>((pWR->right - pWR->left) / SidebarManager::GetAspectRatio()) + pWR->top;
+            pWR->bottom = static_cast<ULONG>((wi.rcClient.right - wi.rcClient.left) / SidebarManager::GetAspectRatio()) + pWR->top + m_extraWindowHeight;
         }
+        int bw, bh;
+        game->GetBaseSize(bw, bh);
+        if (((pWR->right - pWR->left) < bw + m_extraWindowWidth) ||
+            ((pWR->bottom - pWR->top) < bh + m_extraWindowHeight))
+        {
+            pWR->right = pWR->left + bw + m_extraWindowWidth;
+            pWR->bottom = pWR->top + bh + m_extraWindowHeight;
+        }
+
         break;
     }
 
@@ -233,8 +261,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (lParam)
         {
             auto info = reinterpret_cast<MINMAXINFO*>(lParam);
-            info->ptMinTrackSize.x = 320;
-            info->ptMinTrackSize.y = 200;
+            info->ptMinTrackSize.x = m_initialWindowWidth;
+            info->ptMinTrackSize.y = m_initialWindowHeight;
         }
         break;
 
@@ -308,9 +336,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
                 SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
 
-                int width = 800;
-                int height = 600;
-                SidebarManager::GetDefaultSize(width, height);
+                int width = 0;
+                int height = 0;
+                SidebarManager::GetBaseSize(width, height);
 
                 ShowWindow(hWnd, SW_SHOWNORMAL);
 
@@ -346,9 +374,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             if (game)
             {
-                game->shouldRender = false;
                 game->MenuActivateProfile();
-                game->shouldRender = true;
             }
             break;
         }

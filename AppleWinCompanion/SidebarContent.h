@@ -12,10 +12,10 @@ public:
 	SidebarContent::SidebarContent();
 	void Initialize();
 	void LoadProfileUsingDialog(SidebarManager* sbM);
-	bool setActiveProfile(SidebarManager* sbM, std::string* name, bool force);
+	bool setActiveProfile(SidebarManager* sbM, std::string* name);
 	std::string OpenProfile(std::filesystem::directory_entry entry);
 	void UpdateAllSidebarText(SidebarManager* sbM);
-	bool UpdateBlockText(SidebarManager* sbM, UINT8 blockId, nlohmann::json* pdata);
+	bool UpdateBlock(SidebarManager* sbM, UINT8 sidebarId, UINT8 blockId, nlohmann::json* pdata);
 private:
 	void LoadProfilesFromDisk();
 	nlohmann::json ParseProfile(std::filesystem::path filepath);

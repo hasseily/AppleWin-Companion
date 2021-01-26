@@ -4,6 +4,7 @@
 #include <shobjidl.h> 
 #include <DirectXPackedVector.h>
 #include <DirectXMath.h>
+#include <Sidebar.h>
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -23,7 +24,7 @@ SidebarContent::SidebarContent()
 
 void SidebarContent::Initialize()
 {
-    LoadProfilesFromDisk();
+    // LoadProfilesFromDisk();
     // Get memory start address
     auto res = GameLink::Init();
     if (res)
@@ -33,7 +34,7 @@ void SidebarContent::Initialize()
     }
 }
 
-bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name, bool force=false)
+bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
 {
     if (*name == "")
     {
@@ -42,59 +43,86 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name, bo
         // Or put other default info?
         return false;
     }
+    /*
     if ((!force) && (m_activeProfile["meta"]["name"] == *name))
     {
         // no change
         return true;
     }
+    */
     nlohmann::json j;
     try {
         j = m_allProfiles.at(*name);
     }
     catch (std::out_of_range const& exc) {
         m_activeProfile["meta"]["name"] = *name;
-        std::cerr << "Profile Name not found: " << *name << endl << exc.what() << endl;
+        char buf[sizeof(exc.what()) + 500];
+        snprintf(buf, 500, "Profile %s doesn't exist: %s\n", name->c_str(), exc.what());
+        OutputDebugStringA(buf);
         return false;
     }
 
     m_activeProfile = j;
-    sbM->DeleteAll();
-    UINT8 regstart = 0;
+    //OutputDebugStringA(j.dump().c_str());
+    //OutputDebugStringA(j["sidebars"].dump().c_str());
+
+    sbM->DeleteAllSidebars();
     string title = "";
-    XMVECTOR regionColor;
-    bool isFirstRegion = true;
-    UINT8 numBlocks = m_activeProfile["sidebar"].size();
-    sbM->SetNumberOfBlocks(numBlocks);
-    for (UINT8 i = 0; i < numBlocks; i++)
+    UINT8 numSidebars = (UINT8)m_activeProfile["sidebars"].size();
+    for (UINT8 i = 0; i < numSidebars; i++)
     {
-        nlohmann::json aj = m_activeProfile["sidebar"][i];
-        if (aj["type"] == "RegionStart")
+        nlohmann::json sj = m_activeProfile["sidebars"][i];
+        UINT8 numBlocks = static_cast<UINT8>(sj["blocks"].size());
+        if (numBlocks == 0)
         {
-            if (isFirstRegion)
+            continue;
+        }
+        SidebarTypes st = SidebarTypes::Right;  // default
+        if (sj["type"] == "Bottom")
+        {
+            st = SidebarTypes::Bottom;
+        }
+        UINT8 sbId;
+        sbM->CreateSidebar(st, numBlocks, &sbId);
+        for (UINT8 k = 0; k < numBlocks; k++)
+        {
+            nlohmann::json bj = sj["blocks"][k];
+            // OutputDebugStringA((bj.dump() + string("\n")).c_str());
+            BlockStruct bS;
+
+            if (bj["type"] == "Header")
             {
-                isFirstRegion = false; // finished parsing first region header
+                bS.color = Colors::CadetBlue;
+                bS.type = BlockType::Header;
+                bS.fontId = FontDescriptors::A2FontBold;
             }
-            else
+            else if (bj["type"] == "Delimiter")
             {
-                // we finished the previous region
-                // let's send it over to the manager
-                UINT8 res = sbM->AddRegionWithBlocks(title, i - regstart, &regionColor);
-                if (res == ERR_NO_BLOCKS_REMAINING)
-                {
-                    break;
-                }
+                bS.color = Colors::GhostWhite;
+                bS.type = BlockType::Delimiter;
+                bS.fontId = FontDescriptors::A2FontRegular;
             }
-            title = FormatBlockText(&aj);
-            regstart = i;
-            regionColor = Colors::CadetBlue;
-            if (aj.contains("color"))
+            else if (bj["type"] == "Empty")
             {
-                regionColor = XMVectorSet(aj["color"][0], aj["color"][1], aj["color"][2], aj["color"][3]);
+                bS.color = Colors::Black;
+                bS.type = BlockType::Empty;
+                bS.fontId = FontDescriptors::A2FontRegular;
             }
+            else // default to "Content"
+            {
+                bS.color = Colors::GhostWhite;
+                bS.type = BlockType::Content;
+                bS.fontId = FontDescriptors::A2FontRegular;
+            }
+            // overrides
+            if (bj.contains("color"))
+            {
+                bS.color = XMVectorSet(bj["color"][0], bj["color"][1], bj["color"][2], bj["color"][3]);
+            }
+            bS.text = "";
+            sbM->sidebars[sbId].SetBlock(bS, k);
         }
     }
-    // close the last region
-    sbM->AddRegionWithBlocks(title, (UINT8)(m_activeProfile["sidebar"].size()) - regstart, &regionColor);
     return true;
 }
 
@@ -113,7 +141,6 @@ void SidebarContent::LoadProfileUsingDialog(SidebarManager* sbM)
         {
             // Show the Open dialog box.
             hr = pFileOpen->Show(NULL);
-
             // Get the file name from the dialog box.
             if (SUCCEEDED(hr))
             {
@@ -123,13 +150,12 @@ void SidebarContent::LoadProfileUsingDialog(SidebarManager* sbM)
                 {
                     PWSTR pszFilePath;
                     hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-                    // TODO: PASS THAT TO THE PROFILE ACTIVATION
                     // Display the file name to the user.
                     if (SUCCEEDED(hr))
                     {
                         fs::directory_entry dir = fs::directory_entry(pszFilePath);
                         std::string profileName = OpenProfile(dir);
-                        setActiveProfile(sbM, &profileName, true);
+                        setActiveProfile(sbM, &profileName);
                         CoTaskMemFree(pszFilePath);
                     }
                     pItem->Release();
@@ -182,7 +208,9 @@ nlohmann::json SidebarContent::ParseProfile(fs::path filepath)
         return j;
     }
     catch (nlohmann::detail::parse_error err) {
-        std::cerr << "Error parsing profile: " << err.what() << "\n";
+        char buf[sizeof(err.what()) + 500];
+        snprintf(buf, 500, "Error parsing profile: %s\n", err.what());
+        OutputDebugStringA(buf);
         return nullptr;
     }
 }
@@ -270,14 +298,17 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
         try
         {
             int x = *(pmem + memoffset);
-            char buf[500];
-            snprintf(buf, 500, "%s/0x%02x", j["lookup"].get<std::string>().c_str(), x);
+            char buf[5000];
+            snprintf(buf, 5000, "%s/0x%02x", j["lookup"].get<std::string>().c_str(), x);
             nlohmann::json::json_pointer jp(buf);
-            return m_activeProfile.value(jp, "UNKNOWN VALUE");
+            return m_activeProfile.value(jp, "-");  // Default value when unknown lookup is "-"
         }
         catch (exception e)
         {
-            OutputDebugStringA(e.what());
+            std::string es = j.dump().substr(0, 4500);
+            char buf[sizeof(e.what()) + 5000];
+            sprintf_s(buf, "Error parsing lookup: %s\n%s\n", es.c_str(), e.what());
+            OutputDebugStringA(buf);
         }
     }
     return s;
@@ -310,13 +341,9 @@ std::string SidebarContent::FormatBlockText(nlohmann::json* pdata)
 // and directly put them in the format string
     nlohmann::json data = *pdata;
     string txt = "";
-    try
+    if (data.contains("template"))
     {
         txt = data["template"].get<string>();
-    }
-    catch (...)
-    {
-        return txt;
     }
     array<string, SIDEBAR_MAX_VARS_IN_BLOCK> sVars;
     for (size_t i = 0; i < data["vars"].size(); i++)
@@ -329,15 +356,21 @@ std::string SidebarContent::FormatBlockText(nlohmann::json* pdata)
 
 void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
 {
-    // OutputDebugStringA((m_activeProfile["sidebar"].dump()+string("\n")).c_str());
-    UINT8 i = 0;
-    for (auto& element : m_activeProfile["sidebar"])
+    UINT8 isb = 0;  // sidebar index
+    for (auto sB : m_activeProfile["sidebars"])
     {
-        if (!UpdateBlockText(sbM, i, &element))
+        // OutputDebugStringA((sB.dump() + string("\n")).c_str());
+        UINT8 ib = 0;   // block index
+        for (auto& bl : sB["blocks"])
         {
-            std::cout << "Error updating block: " << i << endl;
+            // OutputDebugStringA((bl.dump() + string("\n")).c_str());
+            if (!UpdateBlock(sbM, isb, ib, &bl))
+            {
+                std::cout << "Error updating block: " << ib << endl;
+            }
+            ib++;
         }
-        i++;
+        isb++;
     }
 }
 
@@ -362,36 +395,39 @@ void SidebarContent::UpdateAllSidebarText(SidebarManager* sbM)
 }
 */
 
-bool SidebarContent::UpdateBlockText(SidebarManager* sbM, UINT8 blockId, nlohmann::json* pdata)
+bool SidebarContent::UpdateBlock(SidebarManager* sbM, UINT8 sidebarId, UINT8 blockId, nlohmann::json* pdata)
 {
     nlohmann::json data = *pdata;
     // OutputDebugStringA((data.dump()+string("\n")).c_str());
-    //sbM.ClearBlock(blockId);
 
-    // default for "Content"
-    XMVECTOR color = DirectX::Colors::GhostWhite;
-    UINT8 flags = F_TXT_NORMAL;
     try
     {
-        bool isGood = false;
-        if (data["type"] == "Content")
+        Sidebar sb = sbM->sidebars.at(sidebarId);
+        auto b = sb.blocks.at(blockId);
+        string s = "";
+        switch (b->type)
         {
-            isGood = true;
+        case BlockType::Empty:
+            return true;
+            break;
+        case BlockType::Delimiter:
+            return true;
+            break;
+        case BlockType::Header:
+            s = FormatBlockText(pdata);
+            break;
+        default:                    // Content
+            s = FormatBlockText(pdata);
+            break;
         }
 
-        if (!isGood)
-            return false;
-
-        if (data.contains("color"))
-        {
-            color = XMVectorSet(data["color"][0], data["color"][1], data["color"][2], data["color"][3]);
-        }
-
-        string s = FormatBlockText(pdata);
         // OutputDebugStringA(s.c_str());
         // OutputDebugStringA("\n");
-        sbM->DrawTextInBlock(blockId, s, &color, flags);
-        return true;
+        if (sb.SetBlockText(s, blockId) == SidebarError::ERR_NONE)
+        {
+            return true;
+        }
+        return false;
     }
     catch (...)
     {

@@ -46,6 +46,8 @@ public:
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();
 
+    void GetBaseSize(__out int& width, __out int& height) noexcept;
+
     // Properties
     bool shouldRender;
 
@@ -58,6 +60,12 @@ private:
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
+
+    // This method must be called when sidebars are added or deleted
+    // so the relative vertex boundaries can be updated to stay within
+    // the aspect ratio of the gamelink texture. Pass in width and height ratios
+    // (i.e. how much of the total width|height the vertex should fill, 1.f being full width|height)
+    void UpdateGamelinkVertexData(int width, int height, float wRatio, float hRatio);
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;

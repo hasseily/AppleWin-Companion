@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "SidebarManager.h"
 #include "SidebarContent.h"
+#include "Sidebar.h"
 #include "GameLink.h"
 #include "HAUtils.h"
 #include <vector>
@@ -25,7 +26,13 @@ ComPtr<ID3D12Resource> g_textureUploadHeap;
 HWND m_window;
 static SidebarManager m_sbM;
 static SidebarContent m_sbC;
-static std::vector<std::unique_ptr<DirectX::SpriteFont>> m_spriteFonts;
+// fonts and primitives from dxtoolkit12 to draw lines
+static std::vector<std::unique_ptr<SpriteFont>> m_spriteFonts;
+static std::unique_ptr<PrimitiveBatch<VertexPositionColor>> m_primitiveBatch;
+std::unique_ptr<BasicEffect> m_lineEffect;
+
+static float m_clientFrameScale = 1.f;
+static Vector2 m_vector2ero = { 0.f, 0.f };
 
 Game::Game() noexcept(false)
 {
@@ -50,12 +57,12 @@ Game::~Game()
 void Game::Initialize(HWND window, int width, int height)
 {
     m_window = window;
-    // Set the frame and aspect sizes, we need to know what area of the window we're allowed to work with
-    m_sbM.SetClientFrameSize(width, height);  // Client area
+    /*
     RECT wR;
     GetWindowRect(window, &wR);
     // Now that we have the real window size, set the correct aspect ratio that we'll keep all through the life of the app
     m_sbM.SetAspectRatio(static_cast<FLOAT>(wR.right - wR.left) / static_cast<FLOAT>(wR.bottom - wR.top));
+    */
 
     m_gamePad = std::make_unique<GamePad>();
     m_keyboard = std::make_unique<Keyboard>();
@@ -69,7 +76,8 @@ void Game::Initialize(HWND window, int width, int height)
     m_useGameLink = true;
     shouldRender = true;
 
-    m_deviceResources->SetWindow(window, width, height);
+    m_clientFrameScale = 1.f;
+    m_deviceResources->SetWindow(window, width, height, (float)APPLEWIN_WIDTH, (float)APPLEWIN_HEIGHT);
 
     m_deviceResources->CreateDeviceResources();
     CreateDeviceDependentResources();
@@ -97,7 +105,7 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
     txtDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
     // Check if the shared memory exists. If so, use it.
-    char buf[500];
+    // char buf[500];
     if (m_useGameLink)
     {
         auto res = GameLink::Init();
@@ -123,6 +131,11 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
     }
     g_textureData.RowPitch = static_cast<LONG_PTR>(txtDesc.Width * sizeof(uint32_t));
     return txtDesc;
+}
+
+void Game::GetBaseSize(__out int& width, __out int& height) noexcept
+{
+    return m_sbM.GetBaseSize(width, height);
 }
 
 #pragma endregion
@@ -184,7 +197,7 @@ void Game::Render()
     // Every m_framesDelay see if GameLink is active
     if ((currFrameCount - m_previousFrameCount) > m_framesDelay)
     {
-        char buf[500];
+        // char buf[500];
         if (GameLink::IsActive())
         {
             UINT16 seq = GameLink::GetFrameSequence();
@@ -266,25 +279,45 @@ void Game::Render()
     commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     // End drawing video texture
 
-        // Drawing text
+    // Drawing text
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
     m_spriteBatch->Begin(commandList);
-
-    int dw, dh, cw, ch;
-    SidebarManager::GetClientFrameSize(cw, ch);
-    SidebarManager::GetDefaultSize(dw, dh);
-    float fscale = ((float)cw) / ((float)dw);
-    Vector2 origin = { 0,0 };
-
-    int sI = 0;
-    for (std::pair<UINT8, TextSpriteStruct> element : m_sbM.allTexts)
+   
+    m_lineEffect->Apply(commandList);
+    m_primitiveBatch->Begin(commandList);
+    for each (auto sb in m_sbM.sidebars)
     {
-        TextSpriteStruct tss = element.second;
-        m_spriteFonts.at(sI)->DrawString(m_spriteBatch.get(), tss.text.c_str(),
-            tss.position * fscale, tss.color, 0.f, origin, fscale);
+        // Draw each block's text
+        for each (auto b in sb.blocks)
+        {
+            m_spriteFonts.at((int)b->fontId)->DrawString(m_spriteBatch.get(), b->text.c_str(),
+                b->position * m_clientFrameScale, b->color, 0.f, m_vector2ero, m_clientFrameScale);
+        }
+
+        // Now draw a delimiter line for the block
+        // if the block is not the first block of its type
+        // (having the gamelink video boxed in by lines is not pretty)
+        XMFLOAT3 lstart = XMFLOAT3(sb.position.x, sb.position.y, 0);
+        XMFLOAT3 lend = XMFLOAT3(sb.position.x, sb.position.y, 0);
+        switch (sb.type)
+        {
+        case SidebarTypes::Right:
+            lend.y += APPLEWIN_HEIGHT;
+            break;
+        case SidebarTypes::Bottom:
+            lend.x += +APPLEWIN_WIDTH;
+            break;
+        default:
+            break;
+        }
+        m_primitiveBatch->DrawLine(
+            VertexPositionColor(lstart * m_clientFrameScale, static_cast<XMFLOAT4>(Colors::DimGray)),
+            VertexPositionColor(lend * m_clientFrameScale, static_cast<XMFLOAT4>(Colors::Black))
+            );
     }
+    m_primitiveBatch->End();
 
     m_spriteBatch->End();
     // End drawing text
@@ -313,11 +346,15 @@ void Game::Clear()
     commandList->ClearRenderTargetView(rtvDescriptor, Colors::Black, 0, nullptr);
     commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-    // Set the viewport and scissor rect.
-    auto viewport = m_deviceResources->GetScreenViewport();
-    auto scissorRect = m_deviceResources->GetScissorRect();
-    commandList->RSSetViewports(1, &viewport);
-    commandList->RSSetScissorRects(1, &scissorRect);
+    // Set the viewports and scissor rects.
+    // Set the Gamelink viewport as the first default viewport for the geometry shaders to use
+    // So we don't have to specifiy the viewport in the shader
+    //D3D12_VIEWPORT viewports[2] = { m_deviceResources->GetGamelinkViewport(), m_deviceResources->GetScreenViewport() };
+    //D3D12_RECT scissorRects[2] = { m_deviceResources->GetScissorRect(), m_deviceResources->GetScissorRect() };
+    D3D12_VIEWPORT viewports[1] = { m_deviceResources->GetScreenViewport() };
+    D3D12_RECT scissorRects[1] = { m_deviceResources->GetScissorRect() };
+    commandList->RSSetViewports(1, viewports);
+    commandList->RSSetScissorRects(1, scissorRects);
 
     PIXEndEvent(commandList);
 }
@@ -349,21 +386,31 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto r = m_deviceResources->GetOutputSize();
-    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+
 }
 
 void Game::OnWindowSizeChanged(int width, int height)
 {
-    RECT cR;
-    GetClientRect(m_window, &cR);
-    m_sbM.SetClientFrameSize(cR.right - cR.left, cR.bottom - cR.top);  // Client area
-    if (!m_deviceResources->WindowSizeChanged(width, height))
+    RECT outSize;
+    int origW, origH;
+    m_sbM.GetBaseSize(origW, origH);
+    float scaleW = (float)(width) / (float)origW;
+    m_clientFrameScale = scaleW;    // (should be the same as scaleH)
+    /*
+    * Debug code to check the aspect ratio is fixed
+    float scaleH = (float)(height) / (float)origH;
+    char buf[300];
+    snprintf(buf, 300, "Scales are; %.2f , %.2f\n", scaleW, scaleH);
+    OutputDebugStringA(buf);
+    */
+    float gamelinkWidth = m_clientFrameScale * (float)APPLEWIN_WIDTH;
+    float gamelinkHeight = m_clientFrameScale * (float)APPLEWIN_HEIGHT;
+
+    if (!m_deviceResources->WindowSizeChanged(&outSize, width, height, gamelinkWidth, gamelinkHeight))
         return;
 
     CreateWindowSizeDependentResources();
-
-    // TODO: Game window is being resized.
+    UpdateGamelinkVertexData(width, height, gamelinkWidth/(float)width, gamelinkHeight/(float)height);
 }
 
 #pragma endregion
@@ -372,8 +419,24 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 void Game::MenuActivateProfile()
 {
+    WINDOWPLACEMENT wp;
+    wp.length = sizeof(WINDOWPLACEMENT);
+    GetWindowPlacement(m_window, &wp);
+    
     m_sbC.LoadProfileUsingDialog(&m_sbM);
+
+    // Update the window position to display the sidebars
+    int w, h;
+    m_clientFrameScale = 1.f;
+    m_sbM.GetBaseSize(w, h);
+    RECT wR = { 0,0,w,h };
+    SendMessage(m_window, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&wR);
+    wp.rcNormalPosition.right = wp.rcNormalPosition.left + wR.right;
+    wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + wR.bottom;
+    SetWindowPlacement(m_window, &wp);
+    SendMessage(m_window, WM_SIZE, SIZE_RESTORED, w & 0x0000FFFF | h << 16);
     return;
+
 }
 
 #pragma endregion
@@ -410,8 +473,8 @@ void Game::CreateDeviceDependentResources()
     }
 
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
-    SpriteBatchPipelineStateDescription pd(rtState);
-    m_spriteBatch = std::make_unique<SpriteBatch>(device, resourceUpload, pd);
+    SpriteBatchPipelineStateDescription spd(rtState);
+    m_spriteBatch = std::make_unique<SpriteBatch>(device, resourceUpload, spd);
 
     auto uploadResourcesFinished = resourceUpload.End(command_queue);
 
@@ -516,12 +579,11 @@ void Game::CreateDeviceDependentResources()
     // Create vertex buffer.
 
     {
-        float sbR = SidebarManager::GetSidebarRatio();
         static const Vertex s_vertexData[4] =
         {
             { { -1.0f, -1.0f, 0.5f, 1.0f }, { 0.f, 1.f } },
-            { { (1.f - sbR * 2.0f), -1.0f, 0.5f, 1.0f }, { 1.f, 1.f } },
-            { { (1.f - sbR * 2.0f),  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
+            { { 1.0f, -1.0f, 0.5f, 1.0f }, { 1.f, 1.f } },
+            { { 1.0f,  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
             { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } },
         };
 
@@ -632,6 +694,29 @@ void Game::CreateDeviceDependentResources()
         device->CreateShaderResourceView(m_texture.Get(), &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
     }
 
+    /// <summary>
+    /// Set up PrimitiveBatch to draw the lines that will delimit the sidebars
+    /// https://github.com/microsoft/DirectXTK12/wiki/PrimitiveBatch
+    /// </summary>
+
+    m_primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(device);
+
+    EffectPipelineStateDescription epd(
+        &VertexPositionColor::InputLayout,
+        CommonStates::Opaque,
+        CommonStates::DepthDefault,
+        CommonStates::CullNone,
+        rtState,
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+
+    m_lineEffect = std::make_unique<BasicEffect>(device, EffectFlags::VertexColor, epd);
+
+    m_lineEffect->SetProjection(XMMatrixOrthographicOffCenterRH(0, APPLEWIN_WIDTH, APPLEWIN_HEIGHT, 0, 0, 1));
+
+    /// <summary>
+    /// Finish
+    /// </summary>
+
     DX::ThrowIfFailed(commandList->Close());
     m_deviceResources->GetCommandQueue()->ExecuteCommandLists(1, CommandListCast(&commandList));
 
@@ -645,6 +730,64 @@ void Game::CreateWindowSizeDependentResources()
 {
     D3D12_VIEWPORT viewport = m_deviceResources->GetScreenViewport();
     m_spriteBatch->SetViewport(viewport);
+}
+
+// This method must be called when sidebars are added or deleted
+// so the relative vertex boundaries can be updated to stay within
+// the aspect ratio of the gamelink texture. Pass in width and height ratios
+// (i.e. how much of the width|height the vertex should fill, 1.f being full width|height)
+void Game::UpdateGamelinkVertexData(int width, int height, float wRatio, float hRatio)
+{
+    float wR = 1.f - (1.f - wRatio) * 2.f;
+    float hR = -1.f + (1.f - hRatio) * 2.f;
+    {
+        Vertex s_vertexData[4] =
+        {
+            { { -1.0f, hR, 0.5f, 1.0f }, { 0.f, 1.f } },
+            { { wR, hR, 0.5f, 1.0f }, { 1.f, 1.f } },
+            { { wR,  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
+            { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } },
+        };
+
+        // Copy the quad data to the vertex buffer.
+        UINT8* pVertexDataBegin;
+        CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+        DX::ThrowIfFailed(
+            m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
+        memcpy(pVertexDataBegin, s_vertexData, sizeof(s_vertexData));
+        m_vertexBuffer->Unmap(0, nullptr);
+
+        // Initialize the vertex buffer view.
+        m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+        m_vertexBufferView.StrideInBytes = sizeof(Vertex);
+        m_vertexBufferView.SizeInBytes = sizeof(s_vertexData);
+    }
+
+    // Update index buffer.
+    {
+        static const uint16_t s_indexData[6] =
+        {
+            3,1,0,
+            2,1,3,
+        };
+
+        // Copy the data to the index buffer.
+        UINT8* pVertexDataBegin;
+        CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+        DX::ThrowIfFailed(
+            m_indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
+        memcpy(pVertexDataBegin, s_indexData, sizeof(s_indexData));
+        m_indexBuffer->Unmap(0, nullptr);
+
+        // Initialize the index buffer view.
+        m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
+        m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+        m_indexBufferView.SizeInBytes = sizeof(s_indexData);
+    }
+
+    // And update the projection for line drawing
+    m_lineEffect->SetProjection(XMMatrixOrthographicOffCenterRH(0, (float)width, (float)height, 0, 0, 1));
+
 }
 
 void Game::OnDeviceLost()

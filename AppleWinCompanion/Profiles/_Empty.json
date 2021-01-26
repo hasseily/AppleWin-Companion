@@ -1,108 +1,40 @@
 {
-	"meta": {
-		"name": "EMPTY",
-		"author": "Rikkles",
-		"revision": 1,
-		"date": "2021.01.21",
-		"api_version": 1
-	},
-	"sidebar": [
-		{
-			"type": "RegionStart",
-			"template": "AppleWin Companion",
-			"color": [
-				0.9,
-				0.9,
-				0.2,
-				1.0
-			],
-			"vars": []
-		},
-		{
-			"type": "Content",
-			"template": "          by @rikkles",
-			"color": [
-				0.9,
-				0.2,
-				0.9,
-				1.0
-			],
-			"vars": []
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		},
-		{
-			"type": "RegionStart",
-			"template": ""
-		}
-	]
-}
+  "meta": {
+    "name": "EMPTY",
+    "author": "Rikkles",
+    "revision": 1,
+    "date": "2021.01.21",
+    "api_version": 2
+  },
+  "sidebars": {
+    {
+      "type": "Right",
+      "blocks": [
+        {
+          "type": "Header",
+          "template": "AppleWin Companion",
+          "color": [
+            0.9,
+            0.9,
+            0.2,
+            1.0
+          ],
+          "vars": []
+        },
+        {
+          "type": "Header",
+          "template": "          by @rikkles",
+          "color": [
+            0.9,
+            0.2,
+            0.9,
+            1.0
+          ],
+          "vars": []
+        }
+      ]
+    }
+  }
 // There are a maximum of 20 entries in the sidebar, including regions and content
 /* EXAMPLES OF USAGE
 	    {

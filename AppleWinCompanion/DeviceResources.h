@@ -38,8 +38,8 @@ namespace DX
 
         void CreateDeviceResources();
         void CreateWindowSizeDependentResources();
-        void SetWindow(HWND window, int width, int height) noexcept;
-        bool WindowSizeChanged(int width, int height);
+        void SetWindow(HWND window, int width, int height, float gamelinkWidth, float gamelinkHeight) noexcept;
+        bool WindowSizeChanged(_Out_ RECT* outputSize, int width, int height, float gamelinkWidth, float gamelinkHeight);
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { m_deviceNotify = deviceNotify; }
         void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
@@ -64,6 +64,7 @@ namespace DX
         DXGI_FORMAT                 GetBackBufferFormat() const noexcept   { return m_backBufferFormat; }
         DXGI_FORMAT                 GetDepthBufferFormat() const noexcept  { return m_depthBufferFormat; }
         D3D12_VIEWPORT              GetScreenViewport() const noexcept     { return m_screenViewport; }
+        D3D12_VIEWPORT              GetGamelinkViewport() const noexcept   { return m_gamelinkViewport; }
         D3D12_RECT                  GetScissorRect() const noexcept        { return m_scissorRect; }
         UINT                        GetCurrentFrameIndex() const noexcept  { return m_backBufferIndex; }
         UINT                        GetBackBufferCount() const noexcept    { return m_backBufferCount; }
@@ -112,7 +113,10 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>        m_dsvDescriptorHeap;
         UINT                                                m_rtvDescriptorSize;
         D3D12_VIEWPORT                                      m_screenViewport;
+        D3D12_VIEWPORT                                      m_gamelinkViewport;
         D3D12_RECT                                          m_scissorRect;
+        float                                               m_gamelinkWidth;
+        float                                               m_gamelinkHeight;
 
         // Direct3D properties.
         DXGI_FORMAT                                         m_backBufferFormat;

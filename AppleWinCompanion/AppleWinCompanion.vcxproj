@@ -195,6 +195,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Sidebar.h" />
     <ClInclude Include="SidebarContent.h" />
     <ClInclude Include="SidebarManager.h" />
     <ClInclude Include="StepTimer.h" />
@@ -206,13 +207,16 @@
     <ClCompile Include="GameLink.cpp" />
     <ClCompile Include="HAUtils.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="DeviceResources.cpp">
+      <DeploymentContent>true</DeploymentContent>
+    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Sidebar.cpp" />
     <ClCompile Include="SidebarContent.cpp" />
     <ClCompile Include="SidebarManager.cpp" />
   </ItemGroup>
@@ -242,6 +246,12 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="packages.config" />
+    <None Include="Profiles\Nox Archaist - Extended.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Profiles\Nox Archaist - Pro.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Profiles\Nox Archaist.json">
       <DeploymentContent>true</DeploymentContent>
     </None>

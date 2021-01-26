@@ -42,6 +42,9 @@ DeviceResources::DeviceResources(
         m_fenceValues{},
         m_rtvDescriptorSize(0),
         m_screenViewport{},
+        m_gamelinkViewport{},
+        m_gamelinkWidth(0.f),
+        m_gamelinkHeight(0.f),
         m_scissorRect{},
         m_backBufferFormat(backBufferFormat),
         m_depthBufferFormat(depthBufferFormat),
@@ -409,11 +412,19 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Set the 3D rendering viewport and scissor rectangle to target the entire window.
+    // Set up the gamelink viewport to only target the gamelink area. This helps properly
+    // keep the correct aspect ratio as the window is resized by the user
     m_screenViewport.TopLeftX = m_screenViewport.TopLeftY = 0.f;
     m_screenViewport.Width = static_cast<float>(backBufferWidth);
     m_screenViewport.Height = static_cast<float>(backBufferHeight);
     m_screenViewport.MinDepth = D3D12_MIN_DEPTH;
     m_screenViewport.MaxDepth = D3D12_MAX_DEPTH;
+
+    m_gamelinkViewport.TopLeftX = m_gamelinkViewport.TopLeftY = 0.f;
+    m_gamelinkViewport.Width = m_gamelinkWidth;
+    m_gamelinkViewport.Height = m_gamelinkHeight;
+    m_gamelinkViewport.MinDepth = D3D12_MIN_DEPTH;
+    m_gamelinkViewport.MaxDepth = D3D12_MAX_DEPTH;
 
     m_scissorRect.left = m_scissorRect.top = 0;
     m_scissorRect.right = static_cast<LONG>(backBufferWidth);
@@ -421,9 +432,11 @@ void DeviceResources::CreateWindowSizeDependentResources()
 }
 
 // This method is called when the Win32 window is created (or re-created).
-void DeviceResources::SetWindow(HWND window, int width, int height) noexcept
+void DeviceResources::SetWindow(HWND window, int width, int height, float gamelinkWidth, float gamelinkHeight) noexcept
 {
     m_window = window;
+    m_gamelinkWidth = gamelinkWidth;
+    m_gamelinkHeight = gamelinkHeight;
 
     m_outputSize.left = m_outputSize.top = 0;
     m_outputSize.right = width;
@@ -431,8 +444,11 @@ void DeviceResources::SetWindow(HWND window, int width, int height) noexcept
 }
 
 // This method is called when the Win32 window changes size.
-bool DeviceResources::WindowSizeChanged(int width, int height)
+// returns the output size rect
+bool DeviceResources::WindowSizeChanged(_Out_ RECT* outputSize, int width, int height, float gamelinkWidth, float gamelinkHeight)
 {
+    m_gamelinkWidth = gamelinkWidth;
+    m_gamelinkHeight = gamelinkHeight;
     RECT newRc;
     newRc.left = newRc.top = 0;
     newRc.right = width;
@@ -445,11 +461,13 @@ bool DeviceResources::WindowSizeChanged(int width, int height)
         // Handle color space settings for HDR
         UpdateColorSpace();
 
+        CopyRect(outputSize, &newRc);
         return false;
     }
 
     m_outputSize = newRc;
     CreateWindowSizeDependentResources();
+    CopyRect(outputSize, &newRc);
     return true;
 }
 
