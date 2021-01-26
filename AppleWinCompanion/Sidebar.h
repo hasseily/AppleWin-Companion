@@ -23,7 +23,6 @@ enum class BlockType
 {
 	Header,
 	Content,
-	Delimiter,
 	Empty,
 	Count
 };

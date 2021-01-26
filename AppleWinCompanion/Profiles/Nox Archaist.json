@@ -4,7 +4,7 @@
     "author": "Rikkles",
     "revision": 1,
     "date": "2021.01.21",
-    "api_version": 1
+    "api_version": 2
   },
   "tables": {
     "spells": {
@@ -46,187 +46,192 @@
       "0x3a": "Greater Illuminate",
       "0x3b": "Magical Reckoning",
       "0x3c": "Quick Exit",
-      "0x3f": "Sally Forth"
+      "0x3f": "Sally Forth",
+      "0xff": ""
     }
   },
-  "sidebar": [
+  "sidebars": [
     {
-      "type": "RegionStart",
-      "template": "AppleWin Companion",
-      "color": [
-        0.9,
-        0.9,
-        0.2,
-        1.0
-      ],
-      "vars": []
-    },
-    {
-      "type": "Content",
-      "template": "          by @rikkles",
-      "color": [
-        0.9,
-        0.2,
-        0.9,
-        1.0
-      ],
-      "vars": []
-    },
-    {
-      "type": "Content",
-      "template": "",
-      "vars": []
-    },
-    {
-      "type": "RegionStart",
-      "template": "Readied Spells",
-      "vars": []
-    },
-    {
-      "type": "Content",
-      "template": "1: {}",
-      "vars": [
+      "type": "Right",
+      "blocks": [
         {
-          "memstart": "0x7033",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "2: {}",
-      "vars": [
+          "type": "Header",
+          "template": "AppleWin Companion",
+          "color": [
+            0.9,
+            0.9,
+            0.2,
+            1.0
+          ],
+          "vars": []
+        },
         {
-          "memstart": "0x7034",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "3: {}",
-      "vars": [
+          "type": "Content",
+          "template": "          by @rikkles",
+          "color": [
+            0.9,
+            0.2,
+            0.9,
+            1.0
+          ],
+          "vars": []
+        },
         {
-          "memstart": "0x7035",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "4: {}",
-      "vars": [
+          "type": "Content",
+          "template": "",
+          "vars": []
+        },
         {
-          "memstart": "0x7036",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "5: {}",
-      "vars": [
+          "type": "Header",
+          "template": "Readied Spells",
+          "vars": []
+        },
         {
-          "memstart": "0x7037",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "6: {}",
-      "vars": [
+          "type": "Content",
+          "template": "1: {}",
+          "vars": [
+            {
+              "memstart": "0x7033",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x7038",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "7: {}",
-      "vars": [
+          "type": "Content",
+          "template": "2: {}",
+          "vars": [
+            {
+              "memstart": "0x7034",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x7039",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "8: {}",
-      "vars": [
+          "type": "Content",
+          "template": "3: {}",
+          "vars": [
+            {
+              "memstart": "0x7035",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x703a",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "9: {}",
-      "vars": [
+          "type": "Content",
+          "template": "4: {}",
+          "vars": [
+            {
+              "memstart": "0x7036",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x703b",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "0: {}",
-      "vars": [
+          "type": "Content",
+          "template": "5: {}",
+          "vars": [
+            {
+              "memstart": "0x7037",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x7032",
-          "length": 1,
-          "type": "lookup",
-          "lookup": "/tables/spells"
-        }
-      ]
-    },
-
-    {
-      "type": "RegionStart",
-      "template": "Tools of the Trade",
-      "vars": []
-    },
-    {
-      "type": "Content",
-      "template": "Torches:   {}",
-      "vars": [
+          "type": "Content",
+          "template": "6: {}",
+          "vars": [
+            {
+              "memstart": "0x7038",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x420",
-          "length": 1,
-          "type": "int_bigendian"
-        }
-      ]
-    },
-    {
-      "type": "Content",
-      "template": "Lockpicks: {}",
-      "vars": [
+          "type": "Content",
+          "template": "7: {}",
+          "vars": [
+            {
+              "memstart": "0x7039",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
         {
-          "memstart": "0x421",
-          "length": 1,
-          "type": "int_bigendian"
+          "type": "Content",
+          "template": "8: {}",
+          "vars": [
+            {
+              "memstart": "0x703a",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "9: {}",
+          "vars": [
+            {
+              "memstart": "0x703b",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "0: {}",
+          "vars": [
+            {
+              "memstart": "0x7032",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/spells"
+            }
+          ]
+        },
+        {
+          "type": "Header",
+          "template": "Tools of the Trade",
+          "vars": []
+        },
+        {
+          "type": "Content",
+          "template": "Torches:   {}",
+          "vars": [
+            {
+              "memstart": "0x420",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Lockpicks: {}",
+          "vars": [
+            {
+              "memstart": "0x421",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
         }
       ]
     }

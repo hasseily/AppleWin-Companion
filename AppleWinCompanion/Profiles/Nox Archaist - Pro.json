@@ -323,17 +323,6 @@
       "type": "Bottom",
       "blocks": [
         {
-          "type": "Delimiter",
-          "template": "",
-          "color": [
-            0.9,
-            0.9,
-            0.9,
-            1.0
-          ],
-          "vars": []
-        },
-        {
           "type": "Header",
           "template": "Download AppleWin Companion on Github",
           "color": [
@@ -343,6 +332,18 @@
             1.0
           ],
           "vars": []
+        },
+        {
+          "type": "Empty"
+        },
+        {
+          "type": "Empty"
+        },
+        {
+          "type": "Empty"
+        },
+        {
+          "type": "Empty"
         }
       ]
     }

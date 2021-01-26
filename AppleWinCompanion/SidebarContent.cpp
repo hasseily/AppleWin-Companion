@@ -96,12 +96,6 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
                 bS.type = BlockType::Header;
                 bS.fontId = FontDescriptors::A2FontBold;
             }
-            else if (bj["type"] == "Delimiter")
-            {
-                bS.color = Colors::GhostWhite;
-                bS.type = BlockType::Delimiter;
-                bS.fontId = FontDescriptors::A2FontRegular;
-            }
             else if (bj["type"] == "Empty")
             {
                 bS.color = Colors::Black;
@@ -408,9 +402,6 @@ bool SidebarContent::UpdateBlock(SidebarManager* sbM, UINT8 sidebarId, UINT8 blo
         switch (b->type)
         {
         case BlockType::Empty:
-            return true;
-            break;
-        case BlockType::Delimiter:
             return true;
             break;
         case BlockType::Header:
