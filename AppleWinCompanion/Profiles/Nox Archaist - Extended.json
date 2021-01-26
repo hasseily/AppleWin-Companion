@@ -574,6 +574,36 @@
       "type": "Bottom",
       "blocks": [
         {
+          "type": "Content",
+          "template": "Location:            {}",
+          "vars": [
+            {
+              "memstart": "0x7DF",
+              "length": 16,
+              "type": "ascii_high"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Sextant Coordinates: {}, {}",
+          "vars": [
+            {
+              "memstart": "0x6CF6",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x6CF7",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Empty"
+        },
+        {
           "type": "Header",
           "template": "Download AppleWin Companion on Github",
           "color": [
@@ -594,15 +624,6 @@
             1.0
           ],
           "vars": []
-        },
-        {
-          "type": "Empty"
-        },
-        {
-          "type": "Empty"
-        },
-        {
-          "type": "Empty"
         }
       ]
     }

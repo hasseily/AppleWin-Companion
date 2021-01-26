@@ -90,9 +90,6 @@
     <None Include="Profiles\_Empty.json">
       <Filter>Profiles</Filter>
     </None>
-    <None Include="Profiles\Nox Archaist - Pro.json">
-      <Filter>Profiles</Filter>
-    </None>
     <None Include="Profiles\Nox Archaist - Extended.json">
       <Filter>Profiles</Filter>
     </None>
