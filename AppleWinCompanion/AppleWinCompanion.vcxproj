@@ -208,7 +208,7 @@
     <ClCompile Include="HAUtils.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp">
-      <DeploymentContent>true</DeploymentContent>
+      <DeploymentContent>false</DeploymentContent>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
