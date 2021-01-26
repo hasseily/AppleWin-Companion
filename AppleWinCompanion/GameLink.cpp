@@ -120,8 +120,8 @@ struct sSharedMemoryMap_R4
 	sSharedMMapFrame_R1 frame;
 	sSharedMMapInput_R2 input;
 	sSharedMMapPeek_R2 peek;
-	sSharedMMapBuffer_R1 buf_recv; // a message to us.
 	sSharedMMapBuffer_R1 buf_tohost;
+	sSharedMMapBuffer_R1 buf_recv; // a message to us.
 	sSharedMMapAudio_R1 audio;
 
 	// added for protocol v4
@@ -140,7 +140,6 @@ static HANDLE g_mmap_handle;
 static bool g_TrackOnly;
 
 static sSharedMemoryMap_R4* g_p_shared_memory;
-static sSharedMMapBuffer_R1* g_p_outbuf;
 
 constexpr int MEMORY_MAP_CORE_SIZE = sizeof(sSharedMemoryMap_R4);
 static UINT8* ramPointer;
@@ -235,6 +234,27 @@ bool GameLink::IsTrackingOnly()
 {
 	int flags = g_p_shared_memory->flags;
 	return (flags & FLAG_NO_FRAME);
+}
+
+void GameLink::SendCommand(std::string command)
+{
+	g_p_shared_memory->buf_tohost.payload = command.size() + 1;
+	snprintf((char *)g_p_shared_memory->buf_tohost.data, command.size()+1, "%s", command.c_str());
+}
+
+void GameLink::Pause()
+{
+	SendCommand(std::string(":pause"));
+}
+
+void GameLink::Reset()
+{
+	SendCommand(std::string(":reset"));
+}
+
+void GameLink::Shutdown()
+{
+	SendCommand(std::string(":shutdown"));
 }
 
 void GameLink::SetSoundVolume(UINT8 main, UINT8 mockingboard)

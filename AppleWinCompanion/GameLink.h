@@ -36,6 +36,11 @@ namespace GameLink
 	extern bool IsActive();
 	extern bool IsTrackingOnly();
 
+	extern void SendCommand(std::string command);
+	extern void Pause();
+	extern void Reset();
+	extern void Shutdown();
+
 	extern void SetSoundVolume(UINT8 main, UINT8 mockingboard);
 	extern int GetSoundVolumeMain();
 	extern int GetSoundVolumeMockingboard();

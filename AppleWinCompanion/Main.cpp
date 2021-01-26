@@ -378,6 +378,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
         }
+        case ID_EMULATOR_PAUSE:
+        {
+            GameLink::Pause();
+            break;
+        }
+        case ID_EMULATOR_RESET:
+        {
+            GameLink::Reset();
+            break;
+        }
+        case ID_EMULATOR_SHUTDOWN:
+        {
+            GameLink::Shutdown();
+            break;
+        }
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;
