@@ -6,7 +6,7 @@
     "date": "2021.01.21",
     "api_version": 2
   },
-  "sidebars": {
+  "sidebars": [
     {
       "type": "Right",
       "blocks": [
@@ -34,7 +34,7 @@
         }
       ]
     }
-  }
+  ]
 }
 // There are a maximum of 20 entries in the sidebar, including regions and content
 /* EXAMPLES OF USAGE

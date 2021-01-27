@@ -301,7 +301,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
     }
     else if (j["type"] == "int_bigendian_literal")
     {
-        int x = 0;
         for (int i = 0; i < length; i++)
         {
             s.append(to_string(*(pmem + memoffset + i)));

@@ -381,7 +381,7 @@
   </Target>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Profiles_4_3Empty_1json__JsonSchema="_Profiles_Schema.json" Profiles_4Nox_x0020_Archaist_x0020_-_x0020_Extended_1json__JsonSchema="_Profiles_Schema.json" />
+      <UserProperties Profiles_4_3Profiles_3Schema_1json__JsonSchema="https://json-schema.org/draft-07/schema" Profiles_4Nox_x0020_Archaist_x0020_-_x0020_Extended_1json__JsonSchema="_Profiles_Schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

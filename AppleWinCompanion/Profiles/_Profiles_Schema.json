@@ -489,7 +489,7 @@
                         }
                       },
                       "additionalProperties": true
-                    },
+                    }
                   ]
                 }
               }
