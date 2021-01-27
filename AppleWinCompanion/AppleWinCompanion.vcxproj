@@ -345,6 +345,7 @@
     <None Include="Profiles\Nox Archaist - Extended.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Profiles\Nox Archaist - Solo.json" />
     <None Include="Profiles\Nox Archaist.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
