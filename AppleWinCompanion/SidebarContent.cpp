@@ -267,7 +267,7 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
         }
         return s;
     }
-    else if (j["type"] == "int_bigendian")
+    else if (j["type"] == "int_littleendian")
     {
         int x = 0;
         for (int i = 0; i < length; i++)
@@ -277,7 +277,7 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
         s = to_string(x);
         return s;
     }
-    else if (j["type"] == "int_littleendian")
+    else if (j["type"] == "int_bigendian")
     {
         int x = 0;
         for (int i = 0; i < length; i++)
@@ -285,6 +285,27 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
             x += (*(pmem + memoffset + i)) * (int)pow(0x100, (length - i - 1));
         }
         s = to_string(x);
+        return s;
+    }
+    else if (j["type"] == "int_littleendian_literal")
+    {
+        // int literal is like what is used in the Ultima games.
+        // Garriott stored ints as literals inside memory, so for example
+        // a hex 0x4523 is in fact the number 2345 (in littleendian mode)
+        s = "";
+        for (int i = 0; i < length; i++)
+        {
+            s.insert(0, to_string(*(pmem + memoffset + i)));
+        }
+        return s;
+    }
+    else if (j["type"] == "int_bigendian_literal")
+    {
+        int x = 0;
+        for (int i = 0; i < length; i++)
+        {
+            s.append(to_string(*(pmem + memoffset + i)));
+        }
         return s;
     }
     else if (j["type"] == "lookup")

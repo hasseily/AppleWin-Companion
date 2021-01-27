@@ -93,6 +93,9 @@
     <None Include="Profiles\Nox Archaist - Extended.json">
       <Filter>Profiles</Filter>
     </None>
+    <None Include="Profiles\_Profiles_Schema.json">
+      <Filter>Profiles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\PixelShader.hlsl">
