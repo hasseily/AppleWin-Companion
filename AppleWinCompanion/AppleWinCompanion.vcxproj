@@ -350,7 +350,9 @@
     <None Include="Profiles\Nox Archaist.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="Profiles\Ultima II.json" />
+    <None Include="Profiles\Ultima II.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Profiles\_Empty.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
