@@ -1,0 +1,676 @@
+{
+  "meta": {
+    "name": "Ultima ][",
+    "author": "Rikkles",
+    "revision": 1,
+    "date": "2021.01.28",
+    "api_version": 2
+  },
+  "tables": {
+    "gender": {
+      "0xc6": "Female",
+      "0xcd": "Male"
+    },
+    "race": {
+      "0x00": "Hobbit",
+      "0x01": "Dwarf",
+      "0x02": "Elf",
+      "0x03": "Human"
+    },
+    "class": {
+      "0x00": "Thief",
+      "0x01": "Wizard",
+      "0x02": "Cleric",
+      "0x03": "Fighter"
+    }
+  },
+  "sidebars": [
+    {
+      "type": "Right",
+      "blocks": [
+        {
+          "type": "Header",
+          "template": "{}",
+          "color": [
+            0.9,
+            0.9,
+            0.2,
+            1.0
+          ],
+          "vars": [
+            {
+              "memstart": "0x4E00",
+              "length": 16,
+              "type": "ascii_high"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "{} {} {}",
+          "color": [
+            0.9,
+            0.2,
+            0.9,
+            1.0
+          ],
+          "vars": [
+            {
+              "memstart": "0x4e10",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/gender"
+            },
+            {
+              "memstart": "0x4e11",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/race"
+            },
+            {
+              "memstart": "0x4e12",
+              "length": 1,
+              "type": "lookup",
+              "lookup": "/tables/class"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Level {}",
+          "vars": [
+            {
+              "memstart": "0x4e20",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Strength    : {}",
+          "vars": [
+            {
+              "memstart": "0x4e15",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Agility     : {}",
+          "vars": [
+            {
+              "memstart": "0x4e16",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Stamina     : {}",
+          "vars": [
+            {
+              "memstart": "0x4e17",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Charisma    : {}",
+          "vars": [
+            {
+              "memstart": "0x4e18",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Wisdom      : {}",
+          "vars": [
+            {
+              "memstart": "0x4e19",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Intelligence: {}",
+          "vars": [
+            {
+              "memstart": "0x4e1a",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Empty"
+        },
+        {
+          "type": "Content",
+          "template": "Hit Points: {}",
+          "vars": [
+            {
+              "memstart": "0x4e1b",
+              "length": 2,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Food      : {}",
+          "vars": [
+            {
+              "memstart": "0x4e1d",
+              "length": 2,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Experience: {}",
+          "vars": [
+            {
+              "memstart": "0x4e20",
+              "length": 2,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Gold      : {}",
+          "vars": [
+            {
+              "memstart": "0x4e22",
+              "length": 2,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Torches   :   {}",
+          "vars": [
+            {
+              "memstart": "0x4e2e",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Keys      :   {}",
+          "vars": [
+            {
+              "memstart": "0x4e2f",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Tools     :   {}",
+          "vars": [
+            {
+              "memstart": "0x4e30",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Rings     :   {}",
+          "vars": [
+            {
+              "memstart": "0x4ea0",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Empty"
+        },
+        {
+          "type": "Content",
+          "template": "Coordinates: {} , {}",
+          "vars": [
+            {
+              "memstart": "0x4e24",
+              "length": 1,
+              "type": "int_littleendian"
+            },
+            {
+              "memstart": "0x4e25",
+              "length": 1,
+              "type": "int_littleendian"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Right",
+      "blocks": [
+        {
+          "type": "Header",
+          "template": "Weapons",
+          "vars": []
+        },
+        {
+          "type": "Content",
+          "template": "Dagger: {}   Sword : {}",
+          "vars": [
+            {
+              "memstart": "0x4e41",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e45",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Mace  : {}   GreatS: {}",
+          "vars": [
+            {
+              "memstart": "0x4e42",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e46",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Axe   : {}   LightS: {}",
+          "vars": [
+            {
+              "memstart": "0x4e43",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e47",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Sword : {}   Phaser: {}",
+          "vars": [
+            {
+              "memstart": "0x4e44",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e48",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Quick Sword: {}",
+          "vars": [
+            {
+              "memstart": "0x4e49",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Header",
+          "template": "Armor",
+          "vars": []
+        },
+        {
+          "type": "Content",
+          "template": "Cloth  :{}   Plate  :{}",
+          "vars": [
+            {
+              "memstart": "0x4e61",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e64",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Leather:{}   Reflect:{}",
+          "vars": [
+            {
+              "memstart": "0x4e62",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e65",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Chain  :{}   Power  :{}",
+          "vars": [
+            {
+              "memstart": "0x4e63",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4e66",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Header",
+          "template": "Spells",
+          "vars": []
+        },
+        {
+          "type": "Content",
+          "template": "Light         : {}",
+          "vars": [
+            {
+              "memstart": "0x4e81",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Down Ladder   : {}",
+          "vars": [
+            {
+              "memstart": "0x4e82",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Up Ladder     : {}",
+          "vars": [
+            {
+              "memstart": "0x4e83",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Pass Wall     : {}",
+          "vars": [
+            {
+              "memstart": "0x4e84",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Surface       : {}",
+          "vars": [
+            {
+              "memstart": "0x4e85",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Magic Missile : {}",
+          "vars": [
+            {
+              "memstart": "0x4e86",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Blink         : {}",
+          "vars": [
+            {
+              "memstart": "0x4e87",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Kill          : {}",
+          "vars": [
+            {
+              "memstart": "0x4e88",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Bottom",
+      "blocks": [
+        {
+          "type": "Header",
+          "template": "Miscellaneous Items",
+          "vars": []
+        },
+        {
+          "type": "Content",
+          "template": "Wand: {} . Staff: {} . Boot: {} . Cloak: {} . Helm: {} . Gem: {} . Ankh: {}",
+          "vars": [
+            {
+              "memstart": "0x4ea1",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea2",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea3",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea4",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea5",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea6",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea7",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Red Gem: {} . Skull Key: {} . Green Gem: {} . Brass Button: {} . Blue Tassle: {}",
+          "vars": [
+            {
+              "memstart": "0x4ea8",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4ea9",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4eaa",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4eab",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4eac",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "Strange Coin: {} . Blue Idol: {} . Tri-Lithium: {}",
+          "vars": [
+            {
+              "memstart": "0x4ead",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4eae",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            },
+            {
+              "memstart": "0x4eaf",
+              "length": 1,
+              "type": "int_littleendian_literal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+/* HEX
+https://gamefaqs.gamespot.com/pc/562658-ultima-ii-the-revenge-of-the-enchantress/faqs/20699
+Add 0x4E00 for the Apple version.
+
+Offset | Value
+-------+----------------------------------------------
+x00-x0b| name (high ascii)
+x0c-x0f| set to 0[end of name]
+x10    | gender(C6 = F = Female/CD = M = Male)
+x11    | race 00=Hobbit 01=Dwarf 02=Elf 03=Human
+x12    | class 00=Thief 01=Wizard 02=Cleric 03=Fighter
+x15    | Strength
+x16    | Agility
+x17    | Stamina
+x18    | Charisma
+x19    | Wisdom
+x1a    | Intelligence
+x1b-x1c| Hit Points
+x1d-x1e| Food
+x1f    | Level (for apple it's x20)
+x20-x21| Experience
+x22-x23| Gold
+x24    | x coordinate
+x25    | y coordinate
+x2e    | Torches
+x2f    | Keys
+x30    | Tools
+-------+------ [weapons below]
+x41    | # of dagger
+x42    | # of mace
+x43    | # of axe
+x44    | # of bow
+x45    | # of sword
+x46    | # of great sword
+x47    | # of light sword
+x48    | # of phaser
+x49    | # of quick sword
+-------+------ [armor below]
+x61    | # of cloth
+x62    | # of leather
+x63    | # of chain
+x64    | # of plate
+x65    | # of reflect
+x66    | # of power
+-------+------ [spells below]
+x81    | # of light
+x82    | # of down ladder
+x83    | # of up ladder
+x84    | # of passwall
+x85    | # of surface
+x86    | # of magic missile
+x87    | # of blink
+x88    | # of kill
+-------+------ [critical game items below]
+xa0    | # of ring(necc. to win game)
+-------+------ [miscellaneous items below]
+xa1    | # of wand
+xa2    | # of staff
+xa3    | # of boot
+xa4    | # of cloak
+xa5    | # of helm
+xa6    | # of gem
+xa7    | # of ankh
+xa8    | # of red gem
+xa9    | # of skull key
+xaa    | # of green gem
+xab    | # of brass button
+xac    | # of blue tassle
+xad    | # of strange coin
+xae    | # of green idol
+xaf    | # of tri-lithium
+
+  */

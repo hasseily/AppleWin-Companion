@@ -329,6 +329,7 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="Assets\a2-12pt.spritefont">
       <DeploymentContent>true</DeploymentContent>
     </None>
@@ -349,6 +350,7 @@
     <None Include="Profiles\Nox Archaist.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Profiles\Ultima II.json" />
     <None Include="Profiles\_Empty.json">
       <DeploymentContent>true</DeploymentContent>
     </None>

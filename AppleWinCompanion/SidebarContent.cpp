@@ -289,21 +289,26 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
     }
     else if (j["type"] == "int_bigendian_literal")
     {
-        // int literal is like what is used in the Ultima games.
-        // Garriott stored ints as literals inside memory, so for example
-        // a hex 0x4523 is in fact the number 2345 (in bigendian mode)
         s = "";
+        char cbuf[3];
         for (int i = 0; i < length; i++)
         {
-            s.insert(0, to_string(*(pmem + memoffset + i)));
+            snprintf(cbuf, 3, "%.2x", *(pmem + memoffset + i));
+            s.insert(0, string(cbuf));
         }
         return s;
     }
     else if (j["type"] == "int_littleendian_literal")
     {
+        // int literal is like what is used in the Ultima games.
+        // Garriott stored ints as literals inside memory, so for example
+        // a hex 0x4523 is in fact the number 4523
+        s = "";
+        char cbuf[3];
         for (int i = 0; i < length; i++)
         {
-            s.append(to_string(*(pmem + memoffset + i)));
+            snprintf(cbuf, 3, "%.2x", *(pmem + memoffset + i));
+            s.append(string(cbuf));
         }
         return s;
     }

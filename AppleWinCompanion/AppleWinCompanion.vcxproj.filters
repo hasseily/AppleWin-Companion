@@ -99,6 +99,10 @@
     <None Include="Profiles\Nox Archaist - Solo.json">
       <Filter>Profiles</Filter>
     </None>
+    <None Include="..\README.md" />
+    <None Include="Profiles\Ultima II.json">
+      <Filter>Profiles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\PixelShader.hlsl">
