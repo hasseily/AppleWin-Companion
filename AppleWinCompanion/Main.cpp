@@ -378,6 +378,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
         }
+        case ID_FILE_DEACTIVATEPROFILE:
+        {
+            if (game)
+            {
+                game->MenuDeactivateProfile();
+            }
+            break;
+        }
         case ID_EMULATOR_PAUSE:
         {
             GameLink::Pause();

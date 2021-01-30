@@ -39,7 +39,7 @@ SidebarManager::SidebarManager()
     SetBaseSize(APPLEWIN_WIDTH, APPLEWIN_HEIGHT);
 }
 
-SidebarError SidebarManager::CreateSidebar(SidebarTypes type, UINT8 numBlocks, __out UINT8* id)
+SidebarError SidebarManager::CreateSidebar(SidebarTypes type, UINT8 numBlocks, UINT16 size, __out UINT8* id)
 {
     *id = 0;
     // the last block id being 0-based, it's one less than activeBlocks
@@ -57,19 +57,29 @@ SidebarError SidebarManager::CreateSidebar(SidebarTypes type, UINT8 numBlocks, _
     switch (type)
     {
     case SidebarTypes::Right:
-        w = SIDEBAR_LR_WIDTH;
+    {
+        if (size == 0)
+            w = SIDEBAR_LR_WIDTH;
+        else
+            w = size;
         h = APPLEWIN_HEIGHT;
         position.x = (float)bw;
         position.y = 0.f;
         bw = bw + w;
         break;
+    }
     case SidebarTypes::Bottom:
+    {
         w = APPLEWIN_WIDTH;
-        h = SIDEBAR_TB_HEIGHT;
+        if (size == 0)
+            h = SIDEBAR_TB_HEIGHT;
+        else
+            h = size;
         position.x = 0.f;
         position.y = (float)bh;
         bh = bh + h;
         break;
+    }
     default:
         return SidebarError::ERR_UNKNOWN;
         break;

@@ -22,6 +22,7 @@
       "sidebars": [
         {
           "type": "Right",
+          "width":  "200",
           "blocks": [
             {
               "type": "Header",
@@ -171,6 +172,7 @@
         [
           {
             "type": "Right",
+            "width": "200",
             "blocks": [
               {
                 "type": "Header",
@@ -225,6 +227,7 @@
             "examples": [
               {
                 "type": "Right",
+                "width": "200",
                 "blocks": [
                   {
                     "type": "Header",
@@ -279,6 +282,26 @@
                 "default": "",
                 "examples": [
                   "Right"
+                ]
+              },
+              "width": {
+                "$id": "#/properties/sidebars/items/anyOf/0/properties/type",
+                "type": "integer",
+                "title": "Right Sidebar Width",
+                "description": "Requested width of a right sidebar.",
+                "default": 200,
+                "examples": [
+                  140
+                ]
+              },
+              "height": {
+                "$id": "#/properties/sidebars/items/anyOf/0/properties/type",
+                "type": "integer",
+                "title": "Bottom Sidebar Height",
+                "description": "Requested height of a bottom sidebar.",
+                "default": 100,
+                "examples": [
+                  85
                 ]
               },
               "blocks": {

@@ -8,7 +8,7 @@
 // C4324: structure was padded due to alignment specifier
 // used in all XMVECTOR
 
-constexpr UINT8 SIDEBAR_MAX_BLOCKS = 20;
+constexpr UINT8 SIDEBAR_MAX_BLOCKS = 100;
 constexpr UINT8 SIDEBAR_OUTSIDE_MARGIN = 3; // margin around the sidebar not including block padding
 constexpr UINT8 SIDEBAR_BLOCK_PADDING = 2;   // PADDING around each block
 
@@ -34,13 +34,6 @@ enum class BlockType
 /// data of each block. A block height is the sidebar height / number of blocks.
 /// The sidebar is assigned width, height and number of blocks by the Sidebar Manager.
 /// </summary>
-
-constexpr UINT8 F_TXT_NORMAL{ 0b0000'0001 };
-constexpr UINT8 F_TXT_BOLD{ 0b0000'0010 };
-constexpr UINT8 F_TXT_ITALIC{ 0b0000'0100 };
-constexpr UINT8 F_TXT_SHADOW{ 0b0000'1000 };
-constexpr UINT8 F_TXT_OUTLINE{ 0b0001'0000 };
-constexpr UINT8 F_TXT_REGIONTITLE{ 0b0010'0000 };
 
 enum class FontDescriptors
 {

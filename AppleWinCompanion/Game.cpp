@@ -42,6 +42,10 @@ Game::Game() noexcept(false)
 
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
+
+    // Any time the layouts differ, a recreation of the vertex buffer is triggered
+    m_previousLayout = GameLinkLayout::NONE;
+    m_currentLayout = GameLinkLayout::NORMAL;
 }
 
 Game::~Game()
@@ -109,13 +113,14 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
     if (m_useGameLink)
     {
         auto res = GameLink::Init();
-        if (res)
+        if (res && (m_useGameLink))   // we were using the bg image. Swap
         {
             auto fbI = GameLink::GetFrameBufferInfo();
             txtDesc.Width = fbI.width;
             txtDesc.Height = fbI.height;
             g_textureData.pData = fbI.frameBuffer;
             g_textureData.SlicePitch = fbI.bufferLength;
+            SetVideoLayout(GameLinkLayout::FLIPPED_Y);
             //sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
             //OutputDebugStringA(buf);
         }
@@ -128,9 +133,33 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
         txtDesc.Height = m_bgImageHeight;
         g_textureData.pData = m_bgImage.data();
         g_textureData.SlicePitch = m_bgImage.size();
+        SetVideoLayout(GameLinkLayout::NORMAL);
     }
     g_textureData.RowPitch = static_cast<LONG_PTR>(txtDesc.Width * sizeof(uint32_t));
     return txtDesc;
+}
+
+void Game::SetVideoLayout(GameLinkLayout layout)
+{
+    m_previousLayout = m_currentLayout;
+    m_currentLayout = layout;
+}
+
+void Game::SetWindowSizeOnChangedProfile()
+{
+    WINDOWPLACEMENT wp;
+    wp.length = sizeof(WINDOWPLACEMENT);
+    GetWindowPlacement(m_window, &wp);
+    // Update the window position to display the sidebars
+    int w, h;
+    m_clientFrameScale = 1.f;
+    m_sbM.GetBaseSize(w, h);
+    RECT wR = { 0,0,w,h };
+    SendMessage(m_window, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&wR);
+    wp.rcNormalPosition.right = wp.rcNormalPosition.left + wR.right;
+    wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + wR.bottom;
+    SetWindowPlacement(m_window, &wp);
+    SendMessage(m_window, WM_SIZE, SIZE_RESTORED, w & 0x0000FFFF | h << 16);
 }
 
 void Game::GetBaseSize(__out int& width, __out int& height) noexcept
@@ -212,6 +241,9 @@ void Game::Render()
                     GameLink::Destroy();
                     m_useGameLink = false;
                     ChooseTexture();
+                    RECT rc;
+                    GetClientRect(m_window, &rc);
+                    OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
                 }
                 else
                 {
@@ -242,6 +274,13 @@ void Game::Render()
             ChooseTexture();
         }
         m_previousFrameCount = currFrameCount;
+    }
+
+    if (m_previousLayout != m_currentLayout)
+    {
+        RECT rc;
+        GetClientRect(m_window, &rc);
+        OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
     }
 
     m_sbC.UpdateAllSidebarText(&m_sbM);
@@ -308,14 +347,14 @@ void Game::Render()
             break;
         case SidebarTypes::Bottom:
             lend.x += +APPLEWIN_WIDTH;
-            break;
+break;
         default:
             break;
         }
         m_primitiveBatch->DrawLine(
-            VertexPositionColor(lstart * m_clientFrameScale, static_cast<XMFLOAT4>(Colors::DimGray)),
-            VertexPositionColor(lend * m_clientFrameScale, static_cast<XMFLOAT4>(Colors::Black))
-            );
+            VertexPositionColor(lstart* m_clientFrameScale, static_cast<XMFLOAT4>(Colors::DimGray)),
+            VertexPositionColor(lend* m_clientFrameScale, static_cast<XMFLOAT4>(Colors::Black))
+        );
     }
     m_primitiveBatch->End();
 
@@ -406,10 +445,11 @@ void Game::OnWindowSizeChanged(int width, int height)
     float gamelinkWidth = m_clientFrameScale * (float)APPLEWIN_WIDTH;
     float gamelinkHeight = m_clientFrameScale * (float)APPLEWIN_HEIGHT;
 
-    if (!m_deviceResources->WindowSizeChanged(&outSize, width, height, gamelinkWidth, gamelinkHeight))
-        return;
-
-    CreateWindowSizeDependentResources();
+    // don't check return status of the below because we still want to recreate the vertex data
+    if (m_deviceResources->WindowSizeChanged(&outSize, width, height, gamelinkWidth, gamelinkHeight))
+    {
+        CreateWindowSizeDependentResources();
+    }
     UpdateGamelinkVertexData(width, height, gamelinkWidth/(float)width, gamelinkHeight/(float)height);
 }
 
@@ -419,24 +459,14 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 void Game::MenuActivateProfile()
 {
-    WINDOWPLACEMENT wp;
-    wp.length = sizeof(WINDOWPLACEMENT);
-    GetWindowPlacement(m_window, &wp);
-    
     m_sbC.LoadProfileUsingDialog(&m_sbM);
+    SetWindowSizeOnChangedProfile();
+}
 
-    // Update the window position to display the sidebars
-    int w, h;
-    m_clientFrameScale = 1.f;
-    m_sbM.GetBaseSize(w, h);
-    RECT wR = { 0,0,w,h };
-    SendMessage(m_window, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&wR);
-    wp.rcNormalPosition.right = wp.rcNormalPosition.left + wR.right;
-    wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + wR.bottom;
-    SetWindowPlacement(m_window, &wp);
-    SendMessage(m_window, WM_SIZE, SIZE_RESTORED, w & 0x0000FFFF | h << 16);
-    return;
-
+void Game::MenuDeactivateProfile()
+{
+    m_sbC.ClearActiveProfile(&m_sbM);
+    SetWindowSizeOnChangedProfile();
 }
 
 #pragma endregion
@@ -579,13 +609,8 @@ void Game::CreateDeviceDependentResources()
     // Create vertex buffer.
 
     {
-        static const Vertex s_vertexData[4] =
-        {
-            { { -1.0f, -1.0f, 0.5f, 1.0f }, { 0.f, 1.f } },
-            { { 1.0f, -1.0f, 0.5f, 1.0f }, { 1.f, 1.f } },
-            { { 1.0f,  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
-            { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } },
-        };
+        Vertex s_vertexData[4];
+        SetVertexData(s_vertexData, 1.f, 1.f, m_currentLayout);
 
         // Note: using upload heaps to transfer static data like vert buffers is not 
         // recommended. Every time the GPU needs it, the upload heap will be marshalled 
@@ -732,22 +757,50 @@ void Game::CreateWindowSizeDependentResources()
     m_spriteBatch->SetViewport(viewport);
 }
 
+void Game::SetVertexData(Vertex* v, float wRatio, float hRatio, GameLinkLayout layout)
+{
+	float wR = 1.f - (1.f - wRatio) * 2.f;
+	float hR = -1.f + (1.f - hRatio) * 2.f;
+
+    v[0] = { { -1.0f, hR, 0.5f, 1.0f },    { 0.f, 1.f } };
+    v[1] = { { wR, hR, 0.5f, 1.0f },       { 1.f, 1.f } };
+    v[2] = { { wR,  1.0f, 0.5f, 1.0f },    { 1.f, 0.f } };
+    v[3] = { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } };
+
+	switch (layout)
+	{
+	case GameLinkLayout::FLIPPED_X:
+        v[0].texcoord = { 1.f, 0.f };
+        v[1].texcoord = { 0.f, 0.f };
+        v[2].texcoord = { 0.f, 1.f };
+        v[3].texcoord = { 1.f, 1.f };
+		break;
+	case GameLinkLayout::FLIPPED_Y:
+        v[0].texcoord = { 0.f, 0.f };
+        v[1].texcoord = { 1.f, 0.f };
+        v[2].texcoord = { 1.f, 1.f };
+        v[3].texcoord = { 0.f, 1.f };
+		break;
+	case GameLinkLayout::FLIPPED_XY:
+        v[0].texcoord = { 1.f, 1.f };
+        v[1].texcoord = { 0.f, 1.f };
+        v[2].texcoord = { 0.f, 0.f };
+        v[3].texcoord = { 1.f, 0.f };
+		break;
+	default:
+		break;
+	}
+}
+
 // This method must be called when sidebars are added or deleted
 // so the relative vertex boundaries can be updated to stay within
 // the aspect ratio of the gamelink texture. Pass in width and height ratios
 // (i.e. how much of the width|height the vertex should fill, 1.f being full width|height)
 void Game::UpdateGamelinkVertexData(int width, int height, float wRatio, float hRatio)
 {
-    float wR = 1.f - (1.f - wRatio) * 2.f;
-    float hR = -1.f + (1.f - hRatio) * 2.f;
     {
-        Vertex s_vertexData[4] =
-        {
-            { { -1.0f, hR, 0.5f, 1.0f }, { 0.f, 1.f } },
-            { { wR, hR, 0.5f, 1.0f }, { 1.f, 1.f } },
-            { { wR,  1.0f, 0.5f, 1.0f }, { 1.f, 0.f } },
-            { { -1.0f,  1.0f, 0.5f, 1.0f }, { 0.f, 0.f } },
-        };
+        Vertex s_vertexData[4];
+        SetVertexData(s_vertexData, wRatio, hRatio, m_currentLayout);
 
         // Copy the quad data to the vertex buffer.
         UINT8* pVertexDataBegin;

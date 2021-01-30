@@ -6,6 +6,16 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "HAUtils.h"
+
+enum class GameLinkLayout
+{
+    NORMAL      = 0,
+    FLIPPED_X   = 1,
+    FLIPPED_Y   = 2,
+    FLIPPED_XY  = 3,
+    NONE        = UINT8_MAX
+};
 
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
@@ -42,9 +52,12 @@ public:
 
     // Menu commands
     void MenuActivateProfile();
+    void MenuDeactivateProfile();
 
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();
+    void SetVideoLayout(GameLinkLayout layout);
+    void SetWindowSizeOnChangedProfile();
 
     void GetBaseSize(__out int& width, __out int& height) noexcept;
 
@@ -60,6 +73,8 @@ private:
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
+
+    void SetVertexData(HA::Vertex* v, float wRatio, float hRatio, GameLinkLayout layout);
 
     // This method must be called when sidebars are added or deleted
     // so the relative vertex boundaries can be updated to stay within
@@ -83,6 +98,10 @@ private:
     std::vector<uint8_t> m_bgImage;
     uint32_t m_bgImageWidth;
     uint32_t m_bgImageHeight;
+
+    // video texture layout may change depending on gamelink status
+    GameLinkLayout m_currentLayout;
+    GameLinkLayout m_previousLayout;
 
     // Input devices.
     std::unique_ptr<DirectX::GamePad>       m_gamePad;

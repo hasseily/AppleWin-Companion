@@ -9,7 +9,6 @@
 #define PROTOCOL_VER		4
 #define GAMELINK_MUTEX_NAME		"DWD_GAMELINK_MUTEX_R4"
 #define GAMELINK_MMAP_NAME		"DWD_GAMELINK_MMAP_R4"
-#define GAMELINK_IVK_HACK 17
 
 using namespace GameLink;
 
@@ -56,6 +55,10 @@ struct sSharedMMapInput_R2
 	UINT8 ready;
 	UINT8 mouse_btn;
 	UINT keyb_state[8];
+
+	enum { READY_NO = 0 };					// Input not ready
+	enum { READY_GC = 1 };					// Input from GC
+	enum { READY_OTHER = 17 };				// Input from other app
 };
 
 //
@@ -126,6 +129,9 @@ struct sSharedMemoryMap_R4
 
 	// added for protocol v4
 	UINT ram_size;
+
+	sSharedMMapInput_R2 input_other;	// A second app's input channel so it isn't clobbered by GC
+
 };
 
 #pragma pack( pop )
@@ -189,6 +195,8 @@ int GameLink::Init()
 			// The ram is right after the end of the shared memory pointer here
 			ramPointer = reinterpret_cast<UINT8*>(g_p_shared_memory + 1);
 			if (GetMutex()) {
+				// All is good, tell the emulator to go native video, we'll take care of the flipping in hardware!
+				SendCommand(std::string(":videonative"));
 				return 1;
 			}
 			OutputDebugStringW(L"WARNING: Found shared memory but couldn't get mutex!\n");
@@ -345,16 +353,18 @@ void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 		// Tell AppleWin we're ready and we're using directly iVK code and lparam
 		// Nasty hack but it's not worth doing it cleanly for now.
 		// To enable this we pass the value GAMELINK_IVK_HACK in the "ready" field
+		// We use the input_other struct because Grid Cartographer would otherwise clobber 75% of the keystrokes
+		// This way we can run AppleWin + GC + Companion cleanly
 
-		g_p_shared_memory->input.ready = GAMELINK_IVK_HACK;
-		g_p_shared_memory->input.keyb_state[0] = iVK_Code;
-		g_p_shared_memory->input.keyb_state[1] = (UINT)lParam;
-		g_p_shared_memory->input.keyb_state[2] = 0;
-		g_p_shared_memory->input.keyb_state[3] = 0;
-		g_p_shared_memory->input.keyb_state[4] = 0;
-		g_p_shared_memory->input.keyb_state[5] = 0;
-		g_p_shared_memory->input.keyb_state[6] = 0;
-		g_p_shared_memory->input.keyb_state[7] = 0;
+		g_p_shared_memory->input_other.ready = sSharedMMapInput_R2::READY_OTHER;
+		g_p_shared_memory->input_other.keyb_state[0] = iVK_Code;
+		g_p_shared_memory->input_other.keyb_state[1] = (UINT)lParam;
+		g_p_shared_memory->input_other.keyb_state[2] = 0;
+		g_p_shared_memory->input_other.keyb_state[3] = 0;
+		g_p_shared_memory->input_other.keyb_state[4] = 0;
+		g_p_shared_memory->input_other.keyb_state[5] = 0;
+		g_p_shared_memory->input_other.keyb_state[6] = 0;
+		g_p_shared_memory->input_other.keyb_state[7] = 0;
 
 		ReleaseMutex(g_mutex_handle);
 		break;

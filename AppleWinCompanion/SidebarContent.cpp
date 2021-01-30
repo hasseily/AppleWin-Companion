@@ -77,13 +77,28 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
         {
             continue;
         }
+
         SidebarTypes st = SidebarTypes::Right;  // default
+        UINT16 sSize = 0;
         if (sj["type"] == "Bottom")
         {
             st = SidebarTypes::Bottom;
         }
+        switch (st)
+        {
+        case SidebarTypes::Right:
+            if (sj.contains("width"))
+                sSize = sj["width"];
+            break;
+        case SidebarTypes::Bottom:
+            if (sj.contains("height"))
+                sSize = sj["height"];
+            break;
+        default:
+            break;
+        }
         UINT8 sbId;
-        sbM->CreateSidebar(st, numBlocks, &sbId);
+        sbM->CreateSidebar(st, numBlocks, sSize, &sbId);
         for (UINT8 k = 0; k < numBlocks; k++)
         {
             nlohmann::json bj = sj["blocks"][k];
@@ -190,6 +205,12 @@ std::string SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
         }
     }
     return "";
+}
+
+void SidebarContent::ClearActiveProfile(SidebarManager* sbM)
+{
+    m_activeProfile.clear();
+    sbM->DeleteAllSidebars();
 }
 
 nlohmann::json SidebarContent::ParseProfile(fs::path filepath)

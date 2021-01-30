@@ -18,7 +18,7 @@ class SidebarManager
 
 public:
 	SidebarManager();
-	SidebarError CreateSidebar(SidebarTypes type, UINT8 numBlocks, __out UINT8* id);
+	SidebarError CreateSidebar(SidebarTypes type, UINT8 numBlocks, UINT16 size, __out UINT8* id);
 	SidebarError ClearSidebar(UINT8 id);
 	void ClearAllSidebars();
 	void DeleteAllSidebars();
