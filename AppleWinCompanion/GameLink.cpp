@@ -197,8 +197,8 @@ int GameLink::Init()
 		{
 			// Make sure to always request the PC of the processor
 			g_p_shared_memory->peek.addr_count = 2;
-			g_p_shared_memory->peek.addr[0] = sSharedMMapPeek_R2::PEEK_SPECIAL_PC_H;
-			g_p_shared_memory->peek.addr[1] = sSharedMMapPeek_R2::PEEK_SPECIAL_PC_L;
+			g_p_shared_memory->peek.addr[0] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_H;
+			g_p_shared_memory->peek.addr[1] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_L;
 			// The ram is right after the end of the shared memory pointer here
 			ramPointer = reinterpret_cast<UINT8*>(g_p_shared_memory + 1);
 			if (GetMutex()) {
