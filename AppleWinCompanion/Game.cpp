@@ -343,13 +343,13 @@ void Game::Render()
         switch (sb.type)
         {
         case SidebarTypes::Right:
-            lend.y += APPLEWIN_HEIGHT;
-            break;
-        case SidebarTypes::Bottom:
-            lend.x += +APPLEWIN_WIDTH;
-break;
-        default:
-            break;
+			lend.y += APPLEWIN_HEIGHT;
+			break;
+		case SidebarTypes::Bottom:
+			lend.x += +APPLEWIN_WIDTH;
+			break;
+		default:
+			break;
         }
         m_primitiveBatch->DrawLine(
             VertexPositionColor(lstart* m_clientFrameScale, static_cast<XMFLOAT4>(Colors::DimGray)),
@@ -357,6 +357,16 @@ break;
         );
     }
     m_primitiveBatch->End();
+
+#ifdef _DEBUG
+    // TEMPORARY
+    // TODO: REMOVE
+    // DISPLAY PC AT TOP LEFT OF WINDOW
+    char pcbuf[5];
+    snprintf(pcbuf, 5, "%.2x%.2x", GameLink::GetPeekAt(0), GameLink::GetPeekAt(1));
+    m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), pcbuf,
+        { 10.f, 10.f }, Colors::OrangeRed, 0.f, m_vector2ero, m_clientFrameScale);
+#endif // _DEBUG
 
     m_spriteBatch->End();
     // End drawing text

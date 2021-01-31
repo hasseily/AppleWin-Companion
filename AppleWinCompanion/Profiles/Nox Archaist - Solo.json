@@ -53,6 +53,7 @@
   "sidebars": [
     {
       "type": "Right",
+      "width":  180,
       "blocks": [
         {
           "type": "Header",

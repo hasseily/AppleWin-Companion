@@ -64,10 +64,13 @@ struct sSharedMMapInput_R2
 //
 // sSharedMMapPeek_R2
 //
-// Memory reading interface.
-//
+// Memory reading interface, an obsolete way of requesting RAM address values.
+// This is unnecessary now for reading RAM as the RAM is completely mapped at the end of the SHM
+// However we can use this interface to request processor registers!
 struct sSharedMMapPeek_R2
 {
+	enum { PEEK_SPECIAL_PC_H = UINT_MAX - 1 };	// Set this address to request program counter high byte
+	enum { PEEK_SPECIAL_PC_L = UINT_MAX - 2 };	// Set this address to request program counter low byte
 	enum { PEEK_LIMIT = 16 * 1024 };
 
 	UINT addr_count;
@@ -192,6 +195,10 @@ int GameLink::Init()
 
 		if (g_p_shared_memory)
 		{
+			// Make sure to always request the PC of the processor
+			g_p_shared_memory->peek.addr_count = 2;
+			g_p_shared_memory->peek.addr[0] = sSharedMMapPeek_R2::PEEK_SPECIAL_PC_H;
+			g_p_shared_memory->peek.addr[1] = sSharedMMapPeek_R2::PEEK_SPECIAL_PC_L;
 			// The ram is right after the end of the shared memory pointer here
 			ramPointer = reinterpret_cast<UINT8*>(g_p_shared_memory + 1);
 			if (GetMutex()) {
@@ -225,12 +232,24 @@ std::string GameLink::GetEmulatedProgramName()
 
 int GameLink::GetMemorySize()
 {
-	return g_p_shared_memory->ram_size;
+	if (g_p_shared_memory)
+		return g_p_shared_memory->ram_size;
+	return 0;
 }
 
 UINT8* GameLink::GetMemoryBasePointer()
 {
 	return ramPointer;
+}
+
+UINT8 GameLink::GetPeekAt(UINT position)
+{
+	if (g_p_shared_memory)
+	{
+		if (position < g_p_shared_memory->peek.addr_count)
+			return g_p_shared_memory->peek.data[position];
+	}
+	return 0;
 }
 
 bool GameLink::IsActive()
