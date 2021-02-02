@@ -9,6 +9,7 @@
 #include "SidebarManager.h"
 #include "SidebarContent.h"
 #include "GameLink.h"
+#include "LogWindow.h"
 
 using namespace DirectX;
 
@@ -399,6 +400,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case ID_EMULATOR_SHUTDOWN:
         {
             GameLink::Shutdown();
+            break;
+        }
+        case ID_GAMEPLAY_LOGWINDOW:
+        {
+            LogWindow lW = LogWindow::LogWindow(hInst, hWnd);
+            if (game)
+            {
+                game->menuShowLogWindow(lW);
+            }
             break;
         }
         case IDM_ABOUT:

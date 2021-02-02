@@ -286,6 +286,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameLink.h" />
     <ClInclude Include="HAUtils.h" />
+    <ClInclude Include="LogWindow.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="resource.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameLink.cpp" />
     <ClCompile Include="HAUtils.cpp" />
+    <ClCompile Include="LogWindow.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp">
       <DeploymentContent>false</DeploymentContent>

@@ -35,6 +35,8 @@ namespace GameLink
 	extern UINT8* GetMemoryBasePointer();
 	extern UINT8 GetPeekAt(UINT position);
 	extern bool IsActive();
+	extern UINT16 GetAutoLogString(std::wstring* ws);
+
 	extern bool IsTrackingOnly();
 
 	extern void SendCommand(std::string command);

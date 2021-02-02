@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GameLink.h"
+#include <sstream>
 
 //------------------------------------------------------------------------------
 // Local Definitions
@@ -92,6 +93,19 @@ struct sSharedMMapBuffer_R1
 };
 
 //
+// sSharedMMapBuffer_R1
+//
+// Buffer for printing to autolog
+//
+struct sSharedMMapPrintBuffer_R1
+{
+	enum { PRINTBUFFER_SIZE = (2 * 1024) };
+
+	UINT16 string_size;
+	UINT8 data[PRINTBUFFER_SIZE];
+};
+
+//
 // sSharedMMapAudio_R1
 //
 // Audio control interface.
@@ -134,6 +148,7 @@ struct sSharedMemoryMap_R4
 	UINT ram_size;
 
 	sSharedMMapInput_R2 input_other;	// A second app's input channel so it isn't clobbered by GC
+	sSharedMMapPrintBuffer_R1 buf_printstr;	// A buffer that sends a string to display in the Companion autolog
 
 };
 
@@ -181,7 +196,7 @@ void CloseMutex()
 int GameLink::Init()
 {
 	if (g_p_shared_memory)
-		return 1;
+		GameLink::Destroy();
 
 	g_mmap_handle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, GAMELINK_MMAP_NAME);
 	if (g_mmap_handle)
@@ -248,6 +263,36 @@ UINT8 GameLink::GetPeekAt(UINT position)
 	{
 		if (position < g_p_shared_memory->peek.addr_count)
 			return g_p_shared_memory->peek.data[position];
+	}
+	return 0;
+}
+
+UINT16 GameLink::GetAutoLogString(std::wstring* ws)
+{
+	if (g_p_shared_memory)
+	{
+		sSharedMMapPrintBuffer_R1* buf = &g_p_shared_memory->buf_printstr;
+		if (buf->string_size == 0)
+			return 0;
+		// Need to "expand" the regular ascii string into a widestring
+		// Also add a CR after every stop
+		std::string s((char *)buf->data, buf->string_size);
+		size_t pos;
+		pos = s.find_last_of("-.!?");
+		while (pos != std::string::npos)
+		{
+			s.insert(pos + 1, "\n");
+			if (pos > 0)
+				pos = s.find_last_of("-.!?", pos - 1);
+			else
+				pos = std::string::npos;
+		}
+		(*ws).clear();
+		(*ws).resize(s.length(), L' ');
+		std::copy(s.begin(), s.end(), (*ws).begin());
+		// state that the buffer has been read and is ready for a new entry
+		buf->string_size = 0;
+		return (UINT16)s.length();
 	}
 	return 0;
 }
@@ -403,7 +448,7 @@ void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 sFramebufferInfo GameLink::GetFrameBufferInfo()	// TODO: STACK OVERFLOW
 {
 	sFramebufferInfo fbI = sFramebufferInfo();
-	DWORD dwWaitResult = WaitForSingleObject(g_mutex_handle, 1000);
+	DWORD dwWaitResult = WaitForSingleObject(g_mutex_handle, 3000);
 	switch (dwWaitResult)
 	{
 	case WAIT_ABANDONED:

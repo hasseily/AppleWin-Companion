@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "LogWindow.h"
 #include "HAUtils.h"
 
 enum class GameLinkLayout
@@ -53,6 +54,7 @@ public:
     // Menu commands
     void MenuActivateProfile();
     void MenuDeactivateProfile();
+    void menuShowLogWindow(LogWindow logW);
 
     // Other methods
     D3D12_RESOURCE_DESC ChooseTexture();

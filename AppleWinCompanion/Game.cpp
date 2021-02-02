@@ -8,6 +8,7 @@
 #include "SidebarContent.h"
 #include "Sidebar.h"
 #include "GameLink.h"
+#include "LogWindow.h"
 #include "HAUtils.h"
 #include <vector>
 
@@ -26,10 +27,13 @@ ComPtr<ID3D12Resource> g_textureUploadHeap;
 HWND m_window;
 static SidebarManager m_sbM;
 static SidebarContent m_sbC;
+static std::unique_ptr<LogWindow> m_logWindow;
 // fonts and primitives from dxtoolkit12 to draw lines
 static std::vector<std::unique_ptr<SpriteFont>> m_spriteFonts;
 static std::unique_ptr<PrimitiveBatch<VertexPositionColor>> m_primitiveBatch;
 std::unique_ptr<BasicEffect> m_lineEffect;
+
+static std::wstring last_logged_line = L"";
 
 static float m_clientFrameScale = 1.f;
 static Vector2 m_vector2ero = { 0.f, 0.f };
@@ -110,10 +114,10 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
 
     // Check if the shared memory exists. If so, use it.
     // char buf[500];
+    bool is_using_gamelink = false;
     if (m_useGameLink)
     {
-        auto res = GameLink::Init();
-        if (res && (m_useGameLink))   // we were using the bg image. Swap
+        if (GameLink::Init())
         {
             auto fbI = GameLink::GetFrameBufferInfo();
             txtDesc.Width = fbI.width;
@@ -121,13 +125,14 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
             g_textureData.pData = fbI.frameBuffer;
             g_textureData.SlicePitch = fbI.bufferLength;
             SetVideoLayout(GameLinkLayout::FLIPPED_Y);
+            is_using_gamelink = true;
             //sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
             //OutputDebugStringA(buf);
         }
     }
     // If GameLink is active, it could return a framebuffer of size (0,0).
-    // This means it's in a waiting state for a program to be loaded
-    if (!GameLink::IsActive() || (txtDesc.Width == 0))
+    // This means it's in a waiting state for a program to be loaded or in pause
+    if (!is_using_gamelink || (txtDesc.Width == 0))
     {
         txtDesc.Width = m_bgImageWidth;
         txtDesc.Height = m_bgImageHeight;
@@ -223,6 +228,14 @@ void Game::Render()
         return;
     }
 
+    // change in video layout Normal/Flipped
+    if (m_previousLayout != m_currentLayout)
+    {
+        RECT rc;
+        GetClientRect(m_window, &rc);
+        OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+    }
+
     // Every m_framesDelay see if GameLink is active
     if ((currFrameCount - m_previousFrameCount) > m_framesDelay)
     {
@@ -274,13 +287,6 @@ void Game::Render()
             ChooseTexture();
         }
         m_previousFrameCount = currFrameCount;
-    }
-
-    if (m_previousLayout != m_currentLayout)
-    {
-        RECT rc;
-        GetClientRect(m_window, &rc);
-        OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
     }
 
     m_sbC.UpdateAllSidebarText(&m_sbM);
@@ -367,6 +373,17 @@ void Game::Render()
     m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), pcbuf,
         { 10.f, 10.f }, Colors::OrangeRed, 0.f, m_vector2ero, m_clientFrameScale);
 #endif // _DEBUG
+    // This is for writing to the log. Ideally it shouldn't be here
+    // It should be in the SidebarContent and should be configured from the meta structure of the profile json
+    // But it's so customized (in this case for Nox Archaist) that it's not worth parametrizing.
+    std::wstring ws(L"");
+    GameLink::GetAutoLogString(&ws);
+    // validation to avoid double-printing lines
+    if (ws != last_logged_line)
+    {
+        m_logWindow->AppendLog(ws);
+        last_logged_line = ws;
+    }
 
     m_spriteBatch->End();
     // End drawing text
@@ -477,6 +494,13 @@ void Game::MenuDeactivateProfile()
 {
     m_sbC.ClearActiveProfile(&m_sbM);
     SetWindowSizeOnChangedProfile();
+}
+
+void Game::menuShowLogWindow(LogWindow logW)
+{
+
+    m_logWindow = std::make_unique<LogWindow>(logW);
+    m_logWindow->ShowLogWindow(true);
 }
 
 #pragma endregion
