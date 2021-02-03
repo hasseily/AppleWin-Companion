@@ -36,7 +36,7 @@ void SidebarContent::Initialize()
 
 bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
 {
-    if (*name == "")
+    if (name->empty())
     {
         // this happens if we can't read the shm
         // TODO: load a default profile that says that AW isn't running?
@@ -67,12 +67,12 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
     //OutputDebugStringA(j["sidebars"].dump().c_str());
 
     sbM->DeleteAllSidebars();
-    string title = "";
-    UINT8 numSidebars = (UINT8)m_activeProfile["sidebars"].size();
+    string title;
+    auto numSidebars = (UINT8)m_activeProfile["sidebars"].size();
     for (UINT8 i = 0; i < numSidebars; i++)
     {
         nlohmann::json sj = m_activeProfile["sidebars"][i];
-        UINT8 numBlocks = static_cast<UINT8>(sj["blocks"].size());
+        auto numBlocks = static_cast<UINT8>(sj["blocks"].size());
         if (numBlocks == 0)
         {
             continue;
@@ -137,19 +137,19 @@ bool SidebarContent::setActiveProfile(SidebarManager* sbM, std::string* name)
 
 void SidebarContent::LoadProfileUsingDialog(SidebarManager* sbM)
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_DISABLE_OLE1DDE);
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE);
     if (SUCCEEDED(hr))
     {
         IFileOpenDialog* pFileOpen;
 
         // Create the FileOpenDialog object.
-        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+        hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL,
             IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
 
         if (SUCCEEDED(hr))
         {
             // Show the Open dialog box.
-            hr = pFileOpen->Show(NULL);
+            hr = pFileOpen->Show(nullptr);
             // Get the file name from the dialog box.
             if (SUCCEEDED(hr))
             {
@@ -242,13 +242,13 @@ nlohmann::json SidebarContent::ParseProfile(fs::path filepath)
 
 std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
 {
-    if (pmem == NULL)
+    if (pmem == nullptr)
         return "";
 
     nlohmann::json j = *pvar;
     // initialize variables
     // OutputDebugStringA((j.dump()+string("\n")).c_str());
-    string s = "";
+    string s;
     if (j.count("length") != 1)
         return s;
     int length = j["length"];
@@ -275,7 +275,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
                 return s;
             s.append(1, (*(pmem + memoffset + i)));
         }
-        return s;
     }
     else if (j["type"] == "ascii_high")
     {
@@ -286,7 +285,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
                 return s;
             s.append(1, (*(pmem + memoffset + i) - 0x80));
         }
-        return s;
     }
     else if (j["type"] == "int_bigendian")
     {
@@ -296,7 +294,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
             x += (*(pmem + memoffset + i)) * (int)pow(0x100, i);
         }
         s = to_string(x);
-        return s;
     }
     else if (j["type"] == "int_littleendian")
     {
@@ -306,7 +303,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
             x += (*(pmem + memoffset + i)) * (int)pow(0x100, (length - i - 1));
         }
         s = to_string(x);
-        return s;
     }
     else if (j["type"] == "int_bigendian_literal")
     {
@@ -317,7 +313,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
             snprintf(cbuf, 3, "%.2x", *(pmem + memoffset + i));
             s.insert(0, string(cbuf));
         }
-        return s;
     }
     else if (j["type"] == "int_littleendian_literal")
     {
@@ -331,7 +326,6 @@ std::string SidebarContent::SerializeVariable(nlohmann::json* pvar)
             snprintf(cbuf, 3, "%.2x", *(pmem + memoffset + i));
             s.append(string(cbuf));
         }
-        return s;
     }
     else if (j["type"] == "lookup")
     {
@@ -380,7 +374,7 @@ std::string SidebarContent::FormatBlockText(nlohmann::json* pdata)
 // serialize the SHM variables into strings
 // and directly put them in the format string
     nlohmann::json data = *pdata;
-    string txt = "";
+    string txt;
     if (data.contains("template"))
     {
         txt = data["template"].get<string>();
@@ -444,7 +438,7 @@ bool SidebarContent::UpdateBlock(SidebarManager* sbM, UINT8 sidebarId, UINT8 blo
     {
         Sidebar sb = sbM->sidebars.at(sidebarId);
         auto b = sb.blocks.at(blockId);
-        string s = "";
+        string s;
         switch (b->type)
         {
         case BlockType::Empty:

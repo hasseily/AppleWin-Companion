@@ -221,7 +221,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         WINDOWINFO wi;
         wi.cbSize = sizeof(WINDOWINFO);
         GetWindowInfo(hWnd, &wi);
-        RECT* pWR = (RECT*)lParam;  // Wanted Rect
+        auto* pWR = (RECT*)lParam;  // Wanted Rect
         
         if (wi.rcClient.right == pWR->right)
         {

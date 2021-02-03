@@ -19,8 +19,8 @@ static std::wstring s2ws(const std::string& s)
 {
     int len;
     int slength = (int)s.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-    wchar_t* buf = new wchar_t[len];
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, nullptr, 0);
+    auto* buf = new wchar_t[len];
     MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
     std::wstring r(buf);
     delete[] buf;
@@ -43,7 +43,7 @@ SidebarError SidebarManager::CreateSidebar(SidebarTypes type, UINT8 numBlocks, U
 {
     *id = 0;
     // the last block id being 0-based, it's one less than activeBlocks
-    UINT8 newId = (UINT8)sidebars.size();
+    auto newId = (UINT8)sidebars.size();
     if (newId >= SIDEBARS_MAX_COUNT)
     {
         return SidebarError::ERR_OUT_OF_RANGE;
@@ -85,7 +85,7 @@ SidebarError SidebarManager::CreateSidebar(SidebarTypes type, UINT8 numBlocks, U
         break;
     }
 
-    sidebars.push_back(Sidebar(newId, type, w, h, numBlocks, position));
+    sidebars.emplace_back(newId, type, w, h, numBlocks, position);
     *id = newId;
 
     SetBaseSize(bw, bh);

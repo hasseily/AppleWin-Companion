@@ -175,17 +175,17 @@ static UINT8* ramPointer;
 bool GetMutex()
 {
 	g_mutex_handle = OpenMutexA(SYNCHRONIZE, FALSE, GAMELINK_MUTEX_NAME);
-	if (g_mutex_handle == 0)
+	if (g_mutex_handle == nullptr)
 		return false;
 	return true;
 }
 
 void CloseMutex()
 {
-	if (g_mutex_handle != 0)
+	if (g_mutex_handle != nullptr)
 	{
 		CloseHandle(g_mutex_handle);
-		g_mutex_handle = NULL;
+		g_mutex_handle = nullptr;
 	}
 }
 
@@ -225,8 +225,8 @@ int GameLink::Init()
 		}
 		// tidy up file mapping.
 		CloseHandle(g_mmap_handle);
-		g_mmap_handle = NULL;
-		g_p_shared_memory = NULL;
+		g_mmap_handle = nullptr;
+		g_p_shared_memory = nullptr;
 	}
 	// Failure
 	return 0;
@@ -235,7 +235,7 @@ int GameLink::Init()
 void GameLink::Destroy()
 {
 	CloseMutex();
-	g_p_shared_memory = NULL;
+	g_p_shared_memory = nullptr;
 }
 
 std::string GameLink::GetEmulatedProgramName()
@@ -299,7 +299,7 @@ UINT16 GameLink::GetAutoLogString(std::wstring* ws)
 
 bool GameLink::IsActive()
 {
-	return (g_p_shared_memory != NULL);
+	return (g_p_shared_memory != nullptr);
 }
 
 bool GameLink::IsTrackingOnly()
@@ -358,7 +358,6 @@ void GameLink::SetSoundVolume(UINT8 main, UINT8 mockingboard)
 	default:
 		break;
 	}
-	return;
 }
 
 int GameLink::GetSoundVolumeMain()

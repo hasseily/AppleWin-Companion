@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "LogWindow.h"
 #include "resource.h"
-#define LF_FACESIZE 32
+#define LF_FACESIZE 32      // Missing define for Richedit.h
 #include <Richedit.h>
 #include <strsafe.h>
 
-static HINSTANCE appInstance = NULL;
-static HWND hwndLog = NULL;				// handle to log window
-static HWND hwndEdit = NULL;			// handle to rich edit window
+static HINSTANCE appInstance = nullptr;
+static HWND hwndLog = nullptr;				// handle to log window
+static HWND hwndEdit = nullptr;			// handle to rich edit window
 
 // Register the window class.
 const wchar_t CLASS_NAME[] = L"WIndow Log Class";
@@ -20,9 +20,9 @@ HWND CreateRichEdit(HWND hwndOwner,        // Dialog box handle.
     LoadLibrary(TEXT("Msftedit.dll"));
 
     HWND _hwndEdit = CreateWindowEx(0, MSFTEDIT_CLASS, TEXT(""),
-        ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | WS_VSCROLL,
+        ES_MULTILINE | ES_NOHIDESEL | ES_AUTOVSCROLL | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | WS_VSCROLL,
         x, y, width, height,
-        hwndOwner, NULL, hinst, NULL);
+        hwndOwner, nullptr, hinst, nullptr);
 
     return _hwndEdit;
 }
@@ -37,7 +37,8 @@ INT_PTR CALLBACK LogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lPara
     case WM_NCDESTROY:
         break;
     case WM_CLOSE:
-        DestroyWindow(hwndDlg);
+        ShowWindow(hwndDlg, SW_HIDE);
+        return 0;   // don't destroy the window
         break;
     case WM_SIZING:
         // when resizing the log window, resize the edit control as well
@@ -46,7 +47,7 @@ INT_PTR CALLBACK LogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lPara
         SetWindowPos(hwndEdit, HWND_TOP, rc.left, rc.top, rc.right, rc.bottom, 0);
         break;
     case EN_REQUESTRESIZE:
-        REQRESIZE* pReqResize = (REQRESIZE*)lParam;
+        auto* pReqResize = (REQRESIZE*)lParam;
         SetWindowPos(hwndEdit, HWND_TOP, pReqResize->rc.left, pReqResize->rc.top, pReqResize->rc.right, pReqResize->rc.bottom, 0);
     }
     return DefWindowProc(hwndDlg, message, wParam, lParam);
@@ -54,6 +55,11 @@ INT_PTR CALLBACK LogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 LogWindow::LogWindow(HINSTANCE app, HWND hMainWindow)
 {
+    if (hwndLog)
+    {
+        ShowLogWindow();
+        return;
+    }
     WNDCLASS wc = { };
 
     wc.lpfnWndProc = LogProc;
@@ -72,9 +78,9 @@ LogWindow::LogWindow(HINSTANCE app, HWND hMainWindow)
         CW_USEDEFAULT, CW_USEDEFAULT, 400, 600,
 
         hMainWindow,// Parent window    
-        NULL,       // Menu
+        nullptr,       // Menu
         app,        // Instance handle
-        NULL        // Additional application data
+        nullptr        // Additional application data
     );
 
     //if (hwndLog == NULL)
@@ -104,16 +110,19 @@ LogWindow::LogWindow(HINSTANCE app, HWND hMainWindow)
     //    MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
     //}
     
-    if (hwndLog != 0)
+    if (hwndLog != nullptr)
     {
-        hwndEdit = CreateRichEdit(hwndLog, 0, 0, 380, 595, app);
-        ShowLogWindow(true);
+        RECT cR;
+        GetClientRect(hwndLog, &cR);
+        hwndEdit = CreateRichEdit(hwndLog, cR.left, cR.top, cR.right, cR.bottom, app);
+        ShowLogWindow();
     }
 }
 
-void LogWindow::ShowLogWindow(bool bringToFront)
+void LogWindow::ShowLogWindow()
 {
-    ShowWindow(hwndLog, SW_SHOW);
+    SetForegroundWindow(hwndLog);
+    ShowWindow(hwndLog, SW_SHOWNORMAL);
 }
 
 void LogWindow::HideLogWindow()
@@ -132,9 +141,11 @@ void LogWindow::ClearLog()
 
 void LogWindow::AppendLog(std::wstring str)
 {
-    SendMessage(hwndEdit, EM_REPLACESEL, FALSE, (LPARAM)str.c_str());
-    SendMessage(hwndEdit, EM_REQUESTRESIZE, 0, 0);
-    SendMessage(hwndEdit, EM_LINESCROLL, 0, UINT16_MAX);
+    // the edit window uses ES_AUTOVSCROLL so it will automatically scroll the bottom text
+    CHARRANGE selectionRange = { -1, -1 };
+    SendMessage(hwndEdit, EM_EXSETSEL, 0, (LPARAM)&selectionRange);     // remove selection
+    SendMessage(hwndEdit, EM_REPLACESEL, FALSE, (LPARAM)str.c_str());   // insert new string at end
+    SendMessage(hwndEdit, EM_REQUESTRESIZE, 0, 0);                      // resize for text wrapping
 }
 
 void LogWindow::SaveLog()

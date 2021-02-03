@@ -33,7 +33,7 @@ static std::vector<std::unique_ptr<SpriteFont>> m_spriteFonts;
 static std::unique_ptr<PrimitiveBatch<VertexPositionColor>> m_primitiveBatch;
 std::unique_ptr<BasicEffect> m_lineEffect;
 
-static std::wstring last_logged_line = L"";
+static std::wstring last_logged_line;
 
 static float m_clientFrameScale = 1.f;
 static Vector2 m_vector2ero = { 0.f, 0.f };
@@ -191,7 +191,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-    float elapsedTime = float(timer.GetElapsedSeconds());
+    auto elapsedTime = float(timer.GetElapsedSeconds());
 
     auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
@@ -376,7 +376,7 @@ void Game::Render()
     // This is for writing to the log. Ideally it shouldn't be here
     // It should be in the SidebarContent and should be configured from the meta structure of the profile json
     // But it's so customized (in this case for Nox Archaist) that it's not worth parametrizing.
-    std::wstring ws(L"");
+    std::wstring ws;
     GameLink::GetAutoLogString(&ws);
     // validation to avoid double-printing lines
     if (ws != last_logged_line)
@@ -500,7 +500,7 @@ void Game::menuShowLogWindow(LogWindow logW)
 {
 
     m_logWindow = std::make_unique<LogWindow>(logW);
-    m_logWindow->ShowLogWindow(true);
+    m_logWindow->ShowLogWindow();
 }
 
 #pragma endregion
@@ -880,9 +880,9 @@ void Game::UpdateGamelinkVertexData(int width, int height, float wRatio, float h
 void Game::OnDeviceLost()
 {
     // Reset fonts
-    for (size_t i = 0; i < m_spriteFonts.size(); i++)
+    for (auto & spriteFont : m_spriteFonts)
     {
-        m_spriteFonts.at(i).reset();
+        spriteFont.reset();
     }
     m_texture.Reset();
     m_indexBuffer.Reset();

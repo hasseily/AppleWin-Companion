@@ -8,7 +8,7 @@ class LogWindow
 public:
 	LogWindow::LogWindow(HINSTANCE app, HWND hMainWindow);
 
-	void ShowLogWindow(bool bringToFront);
+	void ShowLogWindow();
 	void HideLogWindow();
 	bool IsLogWindowDisplayed();
 	void ClearLog();

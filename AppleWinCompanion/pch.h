@@ -6,7 +6,7 @@
 #pragma once
 
 #include <winsdkver.h>
-#define _WIN32_WINNT 0x0A00
+#define _WIN32_WINNT _WIN32_WINNT_WIN10 
 #include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
@@ -55,7 +55,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <map>
