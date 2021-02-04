@@ -118,7 +118,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         m_initialWindowWidth = rc.right - rc.left;
         m_initialWindowHeight = rc.bottom - rc.top;
 
-        HWND hwnd = CreateWindowExW(0, L"AppleWinCompanionWindowClass", L"AppleWinCompanion", WS_OVERLAPPEDWINDOW,
+        HWND hwnd = CreateWindowExW(0, L"AppleWinCompanionWindowClass", L"Nox Archaist Companion", WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, m_initialWindowWidth, m_initialWindowHeight, nullptr, nullptr, hInstance,
             nullptr);
         // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"AppleWinCompanionWindowClass", L"AppleWinCompanion", WS_POPUP,
