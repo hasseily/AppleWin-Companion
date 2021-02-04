@@ -56,20 +56,14 @@
       "blocks": [
         {
           "type": "Header",
-          "template": "{} Skills",
+          "template": "Skills",
           "color": [
             0.9,
-            0.9,
             0.2,
+            0.9,
             1.0
           ],
-          "vars": [
-            {
-              "memstart": "0x1164B",
-              "length": 15,
-              "type": "ascii_high"
-            }
-          ]
+          "vars": []
         },
         {
           "type": "Content",
@@ -104,23 +98,6 @@
         },
         {
           "type": "Content",
-          "template": "{} Skills",
-          "color": [
-            0.9,
-            0.9,
-            0.2,
-            1.0
-          ],
-          "vars": [
-            {
-              "memstart": "0x116CB",
-              "length": 15,
-              "type": "ascii_high"
-            }
-          ]
-        },
-        {
-          "type": "Content",
           "template": "M{} R{} C{} D{} L{}",
           "vars": [
             {
@@ -145,6 +122,130 @@
             },
             {
               "memstart": "0x116A5",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "M{} R{} C{} D{} L{}",
+          "vars": [
+            {
+              "memstart": "0x11719",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1171c",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x11722",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1171f",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x11725",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "M{} R{} C{} D{} L{}",
+          "vars": [
+            {
+              "memstart": "0x11799",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1179c",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x117a2",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1179f",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x117a5",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "M{} R{} C{} D{} L{}",
+          "vars": [
+            {
+              "memstart": "0x11819",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1181c",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x11822",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1181f",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x11825",
+              "length": 1,
+              "type": "int_bigendian"
+            }
+          ]
+        },
+        {
+          "type": "Content",
+          "template": "M{} R{} C{} D{} L{}",
+          "vars": [
+            {
+              "memstart": "0x11899",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1189c",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x118a2",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x1189f",
+              "length": 1,
+              "type": "int_bigendian"
+            },
+            {
+              "memstart": "0x118a5",
               "length": 1,
               "type": "int_bigendian"
             }
@@ -329,9 +430,6 @@
             1.0
           ],
           "vars": []
-        },
-        {
-          "type": "Empty"
         },
         {
           "type": "Content",
@@ -566,8 +664,10 @@
               "type": "ascii_high"
             }
           ]
+        },
+        {
+          "type": "Empty"
         }
-
       ]
     },
     {
