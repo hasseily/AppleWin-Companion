@@ -422,6 +422,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case ID_LOGWINDOW_LOAD:
         {
             g_logW->LoadFromFile();
+			if (game)
+			{
+				game->MenuShowLogWindow(true);
+			}
             break;
         }
 		case ID_LOGWINDOW_SAVE:
