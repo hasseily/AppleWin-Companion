@@ -270,11 +270,19 @@ void Game::Render()
                 if (m_previousGameLinkFrameSequence == 0)
                 {
                     // A game was activated on AppleWin since our last check, let's set the texture the right size
-                    ChooseTexture();
+					m_useGameLink = true;
+					ChooseTexture();
+					RECT rc;
+					GetClientRect(m_window, &rc);
+					OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+                    m_sbC.Initialize();
                 }
-                //sprintf_s(buf, "Gamelink active. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                //OutputDebugStringA(buf);
-                ChooseTexture();
+                else
+                {
+					//sprintf_s(buf, "Gamelink active. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                    //OutputDebugStringA(buf);
+					ChooseTexture();
+                }
             }
             m_previousGameLinkFrameSequence = seq;
         }

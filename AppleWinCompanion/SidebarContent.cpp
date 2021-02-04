@@ -197,6 +197,7 @@ void SidebarContent::LoadProfilesFromDisk()
 
 std::string SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
 {
+    Initialize();   // Might have lost the shm
 //    if (entry.is_regular_file() && (entry.path().extension().compare("json")))
     if (entry.is_regular_file())
     {
