@@ -306,8 +306,6 @@ void Game::Render()
     auto commandList = m_deviceResources->GetCommandList();
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
-    // Add rendering code here.
-
     // Drawing video texture
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_texture.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
     commandList->ResourceBarrier(1, &barrier);
@@ -376,8 +374,8 @@ void Game::Render()
     // TEMPORARY
     // TODO: REMOVE
     // DISPLAY PC AT TOP LEFT OF WINDOW
-    char pcbuf[5];
-    snprintf(pcbuf, 5, "%.2x%.2x", GameLink::GetPeekAt(0), GameLink::GetPeekAt(1));
+    char pcbuf[11];
+    snprintf(pcbuf, sizeof(pcbuf), "DEBUG %.2x%.2x", GameLink::GetPeekAt(0), GameLink::GetPeekAt(1));
     m_spriteFonts.at(0)->DrawString(m_spriteBatch.get(), pcbuf,
         { 10.f, 10.f }, Colors::OrangeRed, 0.f, m_vector2ero, m_clientFrameScale);
 #endif // _DEBUG
@@ -470,13 +468,13 @@ void Game::OnWindowSizeChanged(int width, int height)
     m_sbM.GetBaseSize(origW, origH);
     float scaleW = (float)(width) / (float)origW;
     m_clientFrameScale = scaleW;    // (should be the same as scaleH)
-    /*
-    * Debug code to check the aspect ratio is fixed
-    float scaleH = (float)(height) / (float)origH;
-    char buf[300];
-    snprintf(buf, 300, "Scales are; %.2f , %.2f\n", scaleW, scaleH);
-    OutputDebugStringA(buf);
-    */
+    
+    // Debug code to check the aspect ratio is fixed
+//     float scaleH = (float)(height) / (float)origH;
+//     char buf[300];
+//     snprintf(buf, 300, "Scales are; %.2f , %.2f\n", scaleW, scaleH);
+//     OutputDebugStringA(buf);
+    
     float gamelinkWidth = m_clientFrameScale * (float)APPLEWIN_WIDTH;
     float gamelinkHeight = m_clientFrameScale * (float)APPLEWIN_HEIGHT;
 

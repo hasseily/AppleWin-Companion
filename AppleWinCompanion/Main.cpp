@@ -218,10 +218,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 game->OnResuming();
             s_in_suspend = false;
         }
-        else if (!s_in_sizemove && game)
+        else if (game)
         {
+            // char buf[500];
+			// sprintf_s(buf, "In Main WM_SIZE Width %d, Height %d\n", LOWORD(lParam), HIWORD(lParam));
+			// OutputDebugStringA(buf);
             game->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
         }
+
         break;
 
     case WM_SIZING:
@@ -248,7 +252,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             pWR->right = pWR->left + bw + m_extraWindowWidth;
             pWR->bottom = pWR->top + bh + m_extraWindowHeight;
         }
-
+		// char buf[500];
+		// sprintf_s(buf, "In Main WM_SIZING Left %d, Top %d\n", pWR->left, pWR->top);
+		// OutputDebugStringA(buf);
         break;
     }
 
@@ -258,13 +264,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_EXITSIZEMOVE:
         s_in_sizemove = false;
-        if (game)
-        {
-            RECT rc;
-            GetClientRect(hWnd, &rc);
-
-            game->OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
-        }
         break;
 
     case WM_GETMINMAXINFO:
