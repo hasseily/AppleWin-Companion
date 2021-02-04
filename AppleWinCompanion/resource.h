@@ -27,6 +27,9 @@
 #define ID_FILE_DEACTIVATEPROFILE       32781
 #define ID_GAMEPLAY_LOGWINDOW           32782
 #define IDM_LOG                         32783
+#define ID_LOGWINDOW_SHOW               32785
+#define ID_LOGWINDOW_LOAD               32786
+#define ID_LOGWINDOW_SAVE               32787
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -35,7 +38,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        129
-#define _APS_NEXT_COMMAND_VALUE         32785
+#define _APS_NEXT_COMMAND_VALUE         32788
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

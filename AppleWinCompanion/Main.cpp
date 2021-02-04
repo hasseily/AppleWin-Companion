@@ -39,7 +39,13 @@ int m_initialWindowHeight = 0;
 
 namespace
 {
-    std::unique_ptr<Game> g_game;
+	std::unique_ptr<Game> g_game;
+	std::shared_ptr<LogWindow> g_logW;
+}
+
+std::shared_ptr<LogWindow> GetLogWindow()
+{
+    return g_logW;
 }
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -123,6 +129,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         ShowWindow(hwnd, nCmdShow);
         // TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
+
+        // create the log window at the start
+        g_logW = std::make_unique<LogWindow>(hInst, hwnd);
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()) );
 
@@ -402,15 +411,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             GameLink::Shutdown();
             break;
         }
-        case ID_GAMEPLAY_LOGWINDOW:
+        case ID_LOGWINDOW_SHOW:
         {
-            LogWindow lW = LogWindow::LogWindow(hInst, hWnd);
             if (game)
             {
-                game->menuShowLogWindow(lW);
+                game->MenuShowLogWindow(true);
             }
             break;
         }
+        case ID_LOGWINDOW_LOAD:
+        {
+            g_logW->LoadFromFile();
+            break;
+        }
+		case ID_LOGWINDOW_SAVE:
+		{
+            g_logW->SaveToFile();
+			break;
+		}
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;

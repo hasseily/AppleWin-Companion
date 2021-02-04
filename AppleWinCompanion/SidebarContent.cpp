@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SidebarContent.h"
 #include "GameLink.h"
-#include <shobjidl.h> 
+#include <shobjidl_core.h> 
 #include <DirectXPackedVector.h>
 #include <DirectXMath.h>
 #include <Sidebar.h>
@@ -148,6 +148,12 @@ void SidebarContent::LoadProfileUsingDialog(SidebarManager* sbM)
 
         if (SUCCEEDED(hr))
         {
+			COMDLG_FILTERSPEC rgSpec[] =
+			{
+				{ L"JSON Profiles", L"*.json" },
+                { L"All Files", L"*.*" },
+			};
+            pFileOpen->SetFileTypes(2, rgSpec);
             // Show the Open dialog box.
             hr = pFileOpen->Show(nullptr);
             // Get the file name from the dialog box.
@@ -191,7 +197,8 @@ void SidebarContent::LoadProfilesFromDisk()
 
 std::string SidebarContent::OpenProfile(std::filesystem::directory_entry entry)
 {
-    if (entry.is_regular_file() && (entry.path().extension().compare("json")))
+//    if (entry.is_regular_file() && (entry.path().extension().compare("json")))
+    if (entry.is_regular_file())
     {
         nlohmann::json profile = ParseProfile(entry.path());
         if (profile != nullptr)

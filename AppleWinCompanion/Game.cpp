@@ -27,7 +27,7 @@ ComPtr<ID3D12Resource> g_textureUploadHeap;
 HWND m_window;
 static SidebarManager m_sbM;
 static SidebarContent m_sbC;
-static std::unique_ptr<LogWindow> m_logWindow;
+std::shared_ptr<LogWindow>m_logWindow;
 // fonts and primitives from dxtoolkit12 to draw lines
 static std::vector<std::unique_ptr<SpriteFont>> m_spriteFonts;
 static std::unique_ptr<PrimitiveBatch<VertexPositionColor>> m_primitiveBatch;
@@ -496,11 +496,13 @@ void Game::MenuDeactivateProfile()
     SetWindowSizeOnChangedProfile();
 }
 
-void Game::menuShowLogWindow(LogWindow logW)
+void Game::MenuShowLogWindow(bool toggle)
 {
-
-    m_logWindow = std::make_unique<LogWindow>(logW);
-    m_logWindow->ShowLogWindow();
+     m_logWindow = GetLogWindow();
+    if (toggle)
+    {
+        IsWindowVisible(m_logWindow->hwndLog) ? m_logWindow->HideLogWindow() : m_logWindow->ShowLogWindow();
+    }
 }
 
 #pragma endregion
