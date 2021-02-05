@@ -49,7 +49,7 @@ public:
     void OnSuspending();
     void OnResuming();
     void OnWindowMoved();
-    void OnWindowSizeChanged(int width, int height);
+    void OnWindowSizeChanged();
 
     // Menu commands
     void MenuActivateProfile();

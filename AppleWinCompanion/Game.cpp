@@ -231,9 +231,7 @@ void Game::Render()
     // change in video layout Normal/Flipped
     if (m_previousLayout != m_currentLayout)
     {
-        RECT rc;
-        GetClientRect(m_window, &rc);
-        OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+        OnWindowSizeChanged();
     }
 
     // Every m_framesDelay see if GameLink is active
@@ -254,9 +252,7 @@ void Game::Render()
                     GameLink::Destroy();
                     m_useGameLink = false;
                     ChooseTexture();
-                    RECT rc;
-                    GetClientRect(m_window, &rc);
-                    OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+                    OnWindowSizeChanged();
                 }
                 else
                 {
@@ -272,9 +268,7 @@ void Game::Render()
                     // A game was activated on AppleWin since our last check, let's set the texture the right size
 					m_useGameLink = true;
 					ChooseTexture();
-					RECT rc;
-					GetClientRect(m_window, &rc);
-					OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+					OnWindowSizeChanged();
                     m_sbC.Initialize();
                 }
                 else
@@ -460,13 +454,11 @@ void Game::OnWindowMoved()
 
 }
 
-void Game::OnWindowSizeChanged(int width, int height)
+void Game::OnWindowSizeChanged()
 {
     // We're only interested in the client rect
-    UNREFERENCED_PARAMETER(width);
-    UNREFERENCED_PARAMETER(height);
 	RECT rc;
-	GetClientRect(m_window, &rc);
+    GetClientRect(m_window, &rc);
 	LONG rcWidth = rc.right - rc.left;
 	LONG rcHeight = rc.bottom - rc.top;
 

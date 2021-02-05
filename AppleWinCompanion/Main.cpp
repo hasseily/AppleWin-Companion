@@ -223,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // char buf[500];
 			// sprintf_s(buf, "In Main WM_SIZE Width %d, Height %d\n", LOWORD(lParam), HIWORD(lParam));
 			// OutputDebugStringA(buf);
-            game->OnWindowSizeChanged(0, 0);
+            game->OnWindowSizeChanged();
         }
 
         break;
