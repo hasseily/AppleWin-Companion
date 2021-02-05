@@ -194,6 +194,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_MOVE:
+        // Gives UPPER LEFT CORNER of client Rect
+        // TODO: store this info along with WM_SIZE info and send it to OnWindowSizeChanged() so it properly redraws
+        // Or stop always asking for the client rect and just keep track of it (in Game.cpp) thanks to WM_MOVE and WM_SIZE
         if (game)
         {
             game->OnWindowMoved();
@@ -201,6 +204,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_SIZE:
+        // Gives WIDTH and HEIGHT of client area
         if (wParam == SIZE_MINIMIZED)
         {
             if (!s_minimized)
