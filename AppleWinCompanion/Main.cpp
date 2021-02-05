@@ -223,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // char buf[500];
 			// sprintf_s(buf, "In Main WM_SIZE Width %d, Height %d\n", LOWORD(lParam), HIWORD(lParam));
 			// OutputDebugStringA(buf);
-            game->OnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
+            game->OnWindowSizeChanged(0, 0);
         }
 
         break;
@@ -234,6 +234,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         WINDOWINFO wi;
         wi.cbSize = sizeof(WINDOWINFO);
         GetWindowInfo(hWnd, &wi);
+		m_extraWindowWidth = (wi.rcWindow.right - wi.rcClient.right) + (wi.rcClient.left - wi.rcWindow.left);
+		m_extraWindowHeight = (wi.rcWindow.bottom - wi.rcClient.bottom) + (wi.rcClient.top - wi.rcWindow.top);
         auto* pWR = (RECT*)lParam;  // Wanted Rect
         
         if (wi.rcClient.right == pWR->right)

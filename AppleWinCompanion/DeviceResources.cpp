@@ -278,7 +278,9 @@ void DeviceResources::CreateWindowSizeDependentResources()
     const UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(m_outputSize.right - m_outputSize.left), 1u);
     const UINT backBufferHeight = std::max<UINT>(static_cast<UINT>(m_outputSize.bottom - m_outputSize.top), 1u);
     const DXGI_FORMAT backBufferFormat = NoSRGB(m_backBufferFormat);
-
+// 	char buf[300];
+//     snprintf(buf, 300, "m_outputSize is; %.4d , %.4d, %.4d, %.4d\n", m_outputSize.left, m_outputSize.top, m_outputSize.right, m_outputSize.bottom);
+//     OutputDebugStringA(buf);
     // If the swap chain already exists, resize it, otherwise create one.
     if (m_swapChain)
     {
@@ -445,29 +447,25 @@ void DeviceResources::SetWindow(HWND window, int width, int height, float gameli
 
 // This method is called when the Win32 window changes size.
 // returns the output size rect
-bool DeviceResources::WindowSizeChanged(_Out_ RECT* outputSize, int width, int height, float gamelinkWidth, float gamelinkHeight)
+bool DeviceResources::WindowSizeChanged(_Out_ RECT* outputSize, const RECT* newSize, float gamelinkWidth, float gamelinkHeight)
 {
     m_gamelinkWidth = gamelinkWidth;
     m_gamelinkHeight = gamelinkHeight;
-    RECT newRc;
-    newRc.left = newRc.top = 0;
-    newRc.right = width;
-    newRc.bottom = height;
-    if (newRc.left == m_outputSize.left
-        && newRc.top == m_outputSize.top
-        && newRc.right == m_outputSize.right
-        && newRc.bottom == m_outputSize.bottom)
+    if (newSize->left == m_outputSize.left
+        && newSize->top == m_outputSize.top
+        && newSize->right == m_outputSize.right
+        && newSize->bottom == m_outputSize.bottom)
     {
         // Handle color space settings for HDR
         UpdateColorSpace();
 
-        CopyRect(outputSize, &newRc);
+        CopyRect(outputSize, newSize);
         return false;
     }
 
-    m_outputSize = newRc;
+    CopyRect(&m_outputSize, newSize);
     CreateWindowSizeDependentResources();
-    CopyRect(outputSize, &newRc);
+    CopyRect(outputSize, newSize);
     return true;
 }
 

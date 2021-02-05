@@ -463,14 +463,22 @@ void Game::OnWindowMoved()
 
 void Game::OnWindowSizeChanged(int width, int height)
 {
+    // We're only interested in the client rect
+    UNREFERENCED_PARAMETER(width);
+    UNREFERENCED_PARAMETER(height);
+	RECT rc;
+	GetClientRect(m_window, &rc);
+	LONG rcWidth = rc.right - rc.left;
+	LONG rcHeight = rc.bottom - rc.top;
+
     RECT outSize;
     int origW, origH;
     m_sbM.GetBaseSize(origW, origH);
-    float scaleW = (float)(width) / (float)origW;
+    float scaleW = (float)(rcWidth) / (float)origW;
     m_clientFrameScale = scaleW;    // (should be the same as scaleH)
     
     // Debug code to check the aspect ratio is fixed
-//     float scaleH = (float)(height) / (float)origH;
+//     float scaleH = (float)(rcHeight) / (float)origH;
 //     char buf[300];
 //     snprintf(buf, 300, "Scales are; %.2f , %.2f\n", scaleW, scaleH);
 //     OutputDebugStringA(buf);
@@ -479,11 +487,11 @@ void Game::OnWindowSizeChanged(int width, int height)
     float gamelinkHeight = m_clientFrameScale * (float)APPLEWIN_HEIGHT;
 
     // don't check return status of the below because we still want to recreate the vertex data
-    if (m_deviceResources->WindowSizeChanged(&outSize, width, height, gamelinkWidth, gamelinkHeight))
+    if (m_deviceResources->WindowSizeChanged(&outSize, &rc, gamelinkWidth, gamelinkHeight))
     {
         CreateWindowSizeDependentResources();
     }
-    UpdateGamelinkVertexData(width, height, gamelinkWidth/(float)width, gamelinkHeight/(float)height);
+    UpdateGamelinkVertexData(rcWidth, rcHeight, gamelinkWidth/(float)rcWidth, gamelinkHeight/(float)rcHeight);
 }
 
 #pragma endregion
@@ -581,9 +589,9 @@ void Game::CreateDeviceDependentResources()
         // https://msdn.microsoft.com/en-us/library/windows/desktop/dn913202(v=vs.85).aspx#static_sampler
         D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
         samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
-        samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
         samplerDesc.MaxAnisotropy = 16;
         samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
         samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
