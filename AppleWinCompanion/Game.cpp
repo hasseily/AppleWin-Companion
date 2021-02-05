@@ -446,14 +446,13 @@ void Game::OnDeactivated()
 
 void Game::OnSuspending()
 {
-    // TODO: Game is being power-suspended (or minimized).
+    shouldRender = false;
 }
 
 void Game::OnResuming()
 {
     m_timer.ResetElapsedTime();
-
-    // TODO: Game is being power-resumed (or returning from minimize).
+    shouldRender = true;
 }
 
 void Game::OnWindowMoved()
@@ -594,7 +593,7 @@ void Game::CreateDeviceDependentResources()
         samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
         samplerDesc.MaxAnisotropy = 16;
         samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-        samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+        samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
         samplerDesc.MinLOD = 0;
         samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
         samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
