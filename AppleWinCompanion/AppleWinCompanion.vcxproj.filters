@@ -105,6 +105,9 @@
     <None Include="Profiles\Ultima II.json">
       <Filter>Profiles</Filter>
     </None>
+    <None Include="Profiles\Nox Archaist - Duo.json">
+      <Filter>Profiles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\PixelShader.hlsl">

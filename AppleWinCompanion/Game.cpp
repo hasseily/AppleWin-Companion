@@ -37,6 +37,7 @@ static std::wstring last_logged_line;
 
 static float m_clientFrameScale = 1.f;
 static Vector2 m_vector2ero = { 0.f, 0.f };
+static RECT m_cachedClientRect;
 
 Game::Game() noexcept(false)
 {
@@ -84,6 +85,7 @@ void Game::Initialize(HWND window, int width, int height)
     m_useGameLink = true;
     shouldRender = true;
 
+    GetClientRect(window, &m_cachedClientRect);
     m_clientFrameScale = 1.f;
     m_deviceResources->SetWindow(window, width, height, (float)APPLEWIN_WIDTH, (float)APPLEWIN_HEIGHT);
 
@@ -231,7 +233,7 @@ void Game::Render()
     // change in video layout Normal/Flipped
     if (m_previousLayout != m_currentLayout)
     {
-        OnWindowSizeChanged();
+        OnWindowChanged();
     }
 
     // Every m_framesDelay see if GameLink is active
@@ -252,7 +254,7 @@ void Game::Render()
                     GameLink::Destroy();
                     m_useGameLink = false;
                     ChooseTexture();
-                    OnWindowSizeChanged();
+                    OnWindowChanged();
                 }
                 else
                 {
@@ -268,7 +270,7 @@ void Game::Render()
                     // A game was activated on AppleWin since our last check, let's set the texture the right size
 					m_useGameLink = true;
 					ChooseTexture();
-					OnWindowSizeChanged();
+					OnWindowChanged();
                     m_sbC.Initialize();
                 }
                 else
@@ -449,40 +451,50 @@ void Game::OnResuming()
     shouldRender = true;
 }
 
-void Game::OnWindowMoved()
+void Game::OnWindowChanged()
 {
-
+	// Something's changed, let's update pos and size
+    RECT cR;
+    GetClientRect(m_window, &cR);
+    OnWindowMoved(cR.left, cR.top);
+	OnWindowSizeChanged(cR.right-cR.left, cR.bottom-cR.top);
 }
 
-void Game::OnWindowSizeChanged()
+void Game::OnWindowMoved(LONG x, LONG y)
 {
-    // We're only interested in the client rect
-	RECT rc;
-    GetClientRect(m_window, &rc);
-	LONG rcWidth = rc.right - rc.left;
-	LONG rcHeight = rc.bottom - rc.top;
+    LONG width = m_cachedClientRect.right - m_cachedClientRect.left;
+    LONG height = m_cachedClientRect.bottom - m_cachedClientRect.top;
+    m_cachedClientRect.left = x;
+    m_cachedClientRect.right = x + width;
+	m_cachedClientRect.top = y;
+	m_cachedClientRect.bottom = y + height;
+}
 
+void Game::OnWindowSizeChanged(LONG width, LONG height)
+{
+    m_cachedClientRect.right = m_cachedClientRect.left + width;
+	m_cachedClientRect.bottom = m_cachedClientRect.top + height;
     RECT outSize;
     int origW, origH;
     m_sbM.GetBaseSize(origW, origH);
-    float scaleW = (float)(rcWidth) / (float)origW;
-    m_clientFrameScale = scaleW;    // (should be the same as scaleH)
+    float scaleW = (float)(width) / (float)origW;
+    float scaleH = (float)(height) / (float)origH;
+    m_clientFrameScale = (scaleW + scaleH)/2.f;    // (should all be the same)
     
     // Debug code to check the aspect ratio is fixed
-//     float scaleH = (float)(rcHeight) / (float)origH;
 //     char buf[300];
 //     snprintf(buf, 300, "Scales are; %.2f , %.2f\n", scaleW, scaleH);
 //     OutputDebugStringA(buf);
     
-    float gamelinkWidth = m_clientFrameScale * (float)APPLEWIN_WIDTH;
-    float gamelinkHeight = m_clientFrameScale * (float)APPLEWIN_HEIGHT;
+    float gamelinkWidth = scaleW * (float)APPLEWIN_WIDTH;
+    float gamelinkHeight = scaleH * (float)APPLEWIN_HEIGHT;
 
     // don't check return status of the below because we still want to recreate the vertex data
-    if (m_deviceResources->WindowSizeChanged(&outSize, &rc, gamelinkWidth, gamelinkHeight))
+    if (m_deviceResources->WindowSizeChanged(&outSize, &m_cachedClientRect, gamelinkWidth, gamelinkHeight))
     {
         CreateWindowSizeDependentResources();
     }
-    UpdateGamelinkVertexData(rcWidth, rcHeight, gamelinkWidth/(float)rcWidth, gamelinkHeight/(float)rcHeight);
+    UpdateGamelinkVertexData(width, height, (float)APPLEWIN_WIDTH/(float)origW, (float)APPLEWIN_HEIGHT/(float)origH);
 }
 
 #pragma endregion

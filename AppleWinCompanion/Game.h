@@ -48,8 +48,9 @@ public:
     void OnDeactivated();
     void OnSuspending();
     void OnResuming();
-    void OnWindowMoved();
-    void OnWindowSizeChanged();
+	void OnWindowChanged();                             // we know the client rect changed but we don't know what changed
+    void OnWindowMoved(LONG cR_x, LONG cR_y);           // pass in origin of client rect
+	void OnWindowSizeChanged(LONG width, LONG height);  // pass in new width and height of client rect
 
     // Menu commands
     void MenuActivateProfile();

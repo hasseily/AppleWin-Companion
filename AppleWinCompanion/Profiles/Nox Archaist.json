@@ -207,6 +207,9 @@
           ]
         },
         {
+          "type": "Empty"
+        },
+        {
           "type": "Header",
           "template": "Tools of the Trade",
           "vars": []
