@@ -11,6 +11,9 @@
 #define GAMELINK_MUTEX_NAME		"DWD_GAMELINK_MUTEX_R4"
 #define GAMELINK_MMAP_NAME		"DWD_GAMELINK_MMAP_R4"
 
+#define COMPANION_PROTOCOL_VER 1
+#define COMPANION_MMAP_NAME		"RIK_COMPANION_MMAP_R4"
+
 using namespace GameLink;
 
 //------------------------------------------------------------------------------
@@ -146,10 +149,14 @@ struct sSharedMemoryMap_R4
 
 	// added for protocol v4
 	UINT ram_size;
+};
 
-	sSharedMMapInput_R2 input_other;	// A second app's input channel so it isn't clobbered by GC
+struct sSharedMMapCompanion_R1
+{
+	UINT8 version; // = PROTOCOL_VER
+	sSharedMMapInput_R2 input;				// Companion's input channel so it isn't clobbered by GC
 	sSharedMMapPrintBuffer_R1 buf_printstr;	// A buffer that sends a string to display in the Companion autolog
-
+	sSharedMMapPeek_R2 peek;				// Need a companion peek buffer for the processor registers
 };
 
 #pragma pack( pop )
@@ -160,10 +167,13 @@ struct sSharedMemoryMap_R4
 
 static HANDLE g_mutex_handle;
 static HANDLE g_mmap_handle;
+static HANDLE g_mmap_companion_handle;
+static HANDLE g_mmapcomp_handle;
 
 static bool g_TrackOnly;
 
 static sSharedMemoryMap_R4* g_p_shared_memory;
+static sSharedMMapCompanion_R1* g_p_shared_mem_companion;
 
 constexpr int MEMORY_MAP_CORE_SIZE = sizeof(sSharedMemoryMap_R4);
 static UINT8* ramPointer;
@@ -201,34 +211,52 @@ int GameLink::Init()
 	g_mmap_handle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, GAMELINK_MMAP_NAME);
 	if (g_mmap_handle)
 	{
-//		UINT8 *shm = reinterpret_cast<UINT8*>(
-//			MapViewOfFile(g_mmap_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
-//			);
 		g_p_shared_memory = reinterpret_cast<sSharedMemoryMap_R4*>(
 			MapViewOfFile(g_mmap_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
 			);
 
 		if (g_p_shared_memory)
 		{
-			// Make sure to always request the PC of the processor
-			g_p_shared_memory->peek.addr_count = 2;
-			g_p_shared_memory->peek.addr[0] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_H;
-			g_p_shared_memory->peek.addr[1] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_L;
 			// The ram is right after the end of the shared memory pointer here
 			ramPointer = reinterpret_cast<UINT8*>(g_p_shared_memory + 1);
-			if (GetMutex()) {
-				// All is good, tell the emulator to go native video, we'll take care of the flipping in hardware!
-				SendCommand(std::string(":videonative"));
-				return 1;
+
+			g_mmap_companion_handle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, COMPANION_MMAP_NAME);
+			if (g_mmap_companion_handle)
+			{
+				g_p_shared_mem_companion = reinterpret_cast<sSharedMMapCompanion_R1*>(
+					MapViewOfFile(g_mmap_companion_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0)
+					);
+
+				if (g_p_shared_mem_companion)
+				{
+					// Make sure to always request the PC of the processor
+					g_p_shared_mem_companion->peek.addr_count = 2;
+					g_p_shared_mem_companion->peek.addr[0] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_H;
+					g_p_shared_mem_companion->peek.addr[1] = (UINT)sSharedMMapPeek_R2::PEEK_SPECIAL_PC_L;
+
+					if (GetMutex()) {
+						// All is good, tell the emulator to go native video, we'll take care of the flipping in hardware!
+						SendCommand(std::string(":videonative"));
+						return 1;
+					}
+				}
 			}
-			OutputDebugStringW(L"WARNING: Found shared memory but couldn't get mutex!\n");
 		}
-		// tidy up file mapping.
-		CloseHandle(g_mmap_handle);
-		g_mmap_handle = nullptr;
-		g_p_shared_memory = nullptr;
 	}
 	// Failure
+	// tidy up file mapping.
+	if (g_mmap_handle)
+	{
+		CloseHandle(g_mmap_handle);
+		g_mmap_handle = nullptr;
+	}
+	if (g_mmapcomp_handle)
+	{
+		CloseHandle(g_mmapcomp_handle);
+		g_mmapcomp_handle = nullptr;
+	}
+	g_p_shared_memory = nullptr;
+	g_p_shared_mem_companion = nullptr;
 	return 0;
 }
 
@@ -236,6 +264,7 @@ void GameLink::Destroy()
 {
 	CloseMutex();
 	g_p_shared_memory = nullptr;
+	g_p_shared_mem_companion = nullptr;
 }
 
 std::string GameLink::GetEmulatedProgramName()
@@ -259,19 +288,20 @@ UINT8* GameLink::GetMemoryBasePointer()
 
 UINT8 GameLink::GetPeekAt(UINT position)
 {
-	if (g_p_shared_memory)
+	// Only use the companion peek structure. Leave the original one to GC
+	if (g_p_shared_mem_companion)
 	{
-		if (position < g_p_shared_memory->peek.addr_count)
-			return g_p_shared_memory->peek.data[position];
+		if (position < g_p_shared_mem_companion->peek.addr_count)
+			return g_p_shared_mem_companion->peek.data[position];
 	}
 	return 0;
 }
 
 UINT16 GameLink::GetAutoLogString(std::wstring* ws)
 {
-	if (g_p_shared_memory)
+	if (g_p_shared_mem_companion)
 	{
-		sSharedMMapPrintBuffer_R1* buf = &g_p_shared_memory->buf_printstr;
+		sSharedMMapPrintBuffer_R1* buf = &g_p_shared_mem_companion->buf_printstr;
 		if (buf->string_size == 0)
 			return 0;
 		// Need to "expand" the regular ascii string into a widestring
@@ -421,15 +451,15 @@ void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 		// We use the input_other struct because Grid Cartographer would otherwise clobber 75% of the keystrokes
 		// This way we can run AppleWin + GC + Companion cleanly
 
-		g_p_shared_memory->input_other.ready = sSharedMMapInput_R2::READY_OTHER;
-		g_p_shared_memory->input_other.keyb_state[0] = iVK_Code;
-		g_p_shared_memory->input_other.keyb_state[1] = (UINT)lParam;
-		g_p_shared_memory->input_other.keyb_state[2] = 0;
-		g_p_shared_memory->input_other.keyb_state[3] = 0;
-		g_p_shared_memory->input_other.keyb_state[4] = 0;
-		g_p_shared_memory->input_other.keyb_state[5] = 0;
-		g_p_shared_memory->input_other.keyb_state[6] = 0;
-		g_p_shared_memory->input_other.keyb_state[7] = 0;
+		g_p_shared_mem_companion->input.ready = sSharedMMapInput_R2::READY_OTHER;
+		g_p_shared_mem_companion->input.keyb_state[0] = iVK_Code;
+		g_p_shared_mem_companion->input.keyb_state[1] = (UINT)lParam;
+		g_p_shared_mem_companion->input.keyb_state[2] = 0;
+		g_p_shared_mem_companion->input.keyb_state[3] = 0;
+		g_p_shared_mem_companion->input.keyb_state[4] = 0;
+		g_p_shared_mem_companion->input.keyb_state[5] = 0;
+		g_p_shared_mem_companion->input.keyb_state[6] = 0;
+		g_p_shared_mem_companion->input.keyb_state[7] = 0;
 
 		ReleaseMutex(g_mutex_handle);
 		break;

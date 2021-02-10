@@ -136,7 +136,6 @@ Global
 		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release NoDX|x86.ActiveCfg = Release|Win32
 		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release NoDX|x86.Build.0 = Release|Win32
 		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release|x64.ActiveCfg = Release|x64
-		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release|x64.Build.0 = Release|x64
 		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release|x86.ActiveCfg = Release|Win32
 		{CF5A49BF-62A5-41BB-B10C-F34D556A7A45}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

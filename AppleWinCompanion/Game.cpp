@@ -99,6 +99,36 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 30);
     
+    /*
+    // Launch AppleWin!
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	// Start the child process. 
+    if (!CreateProcess(NULL,   // No module name (use command line)
+        L"AWN.exe -no-printscreen-dlg -remote-control-headless -h1 NOXARCHAIST.HDV",        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+		// Quit!
+		if (MessageBox(HWND_TOP, TEXT("Can't find AppleWin Nox - Reinstall!"), TEXT("Quit"), MB_OK | MB_ICONWARNING | MB_DEFBUTTON1 | MB_SYSTEMMODAL) == IDOK)
+		{
+			GameLink::Shutdown();
+			PostQuitMessage(0);
+		}
+    }
+    */
 }
 
 #pragma region Activate GameLink
