@@ -310,6 +310,8 @@ bool GameLink::IsTrackingOnly()
 
 void GameLink::SendCommand(std::string command)
 {
+	if (!IsActive())
+		return;
 	UINT16 sz = (UINT16)command.size() + 1;
 	g_p_shared_memory->buf_tohost.payload = sz;
 	snprintf((char *)g_p_shared_memory->buf_tohost.data, sz, "%s", command.c_str());

@@ -4,7 +4,6 @@
 #include "resource.h"
 #define LF_FACESIZE 32      // Missing define for Richedit.h
 #include <Richedit.h>
-#include <strsafe.h>
 #include <filesystem>
 
 static HINSTANCE appInstance = nullptr;

@@ -43,6 +43,8 @@ namespace
 	std::shared_ptr<LogWindow> g_logW;
 }
 
+void ExitGame() noexcept;
+
 std::shared_ptr<LogWindow> GetLogWindow()
 {
     return g_logW;
@@ -440,7 +442,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;
         case IDM_EXIT:
-            DestroyWindow(hWnd);
+            ExitGame();
             break;
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -448,8 +450,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
 
+    case WM_CLOSE:
     case WM_DESTROY:
-        PostQuitMessage(0);
+        ExitGame();
+        return (LRESULT)0;
         break;
 
     default:
@@ -462,9 +466,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-
 // Exit helper
 void ExitGame() noexcept
-{
-    PostQuitMessage(0);
+{    
+    // Display exit confirmation
+    if (MessageBox(HWND_TOP, TEXT("Are you sure you want to quit?\nSave your game first!"), TEXT("Quit Nox Archaist"), MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2 | MB_SYSTEMMODAL) == IDYES)
+    {
+		GameLink::Shutdown();
+		PostQuitMessage(0);
+    }
 }

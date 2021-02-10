@@ -23,6 +23,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <strsafe.h>
 
 #include <wrl/client.h>
 #include <wrl/event.h>

@@ -12,8 +12,6 @@
 #include "HAUtils.h"
 #include <vector>
 
-extern void ExitGame() noexcept;
-
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
