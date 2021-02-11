@@ -76,6 +76,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -252,11 +253,15 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="packages.config" />
-    <None Include="Profiles\Nox Archaist - Duo.json" />
+    <None Include="Profiles\Nox Archaist - Duo.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
     <None Include="Profiles\Nox Archaist - Extended.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="Profiles\Nox Archaist - Solo.json" />
+    <None Include="Profiles\Nox Archaist - Solo.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
     <None Include="Profiles\Nox Archaist.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
