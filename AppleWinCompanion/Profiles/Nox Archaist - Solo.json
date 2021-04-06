@@ -2,8 +2,8 @@
   "meta": {
     "name": "Nox Archaist - Solo Run",
     "author": "Rikkles",
-    "revision": 1,
-    "date": "2021.01.25",
+    "revision": 1191,
+    "date": "2021.04.06",
     "api_version": 2
   },
   "tables": {
@@ -53,7 +53,7 @@
   "sidebars": [
     {
       "type": "Right",
-      "width":  180,
+      "width":  200,
       "blocks": [
         {
           "type": "Header",
@@ -279,7 +279,7 @@
           "template": "1: {}",
           "vars": [
             {
-              "memstart": "0x7033",
+              "memstart": "0x7044",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -291,7 +291,7 @@
           "template": "2: {}",
           "vars": [
             {
-              "memstart": "0x7034",
+              "memstart": "0x7045",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -303,7 +303,7 @@
           "template": "3: {}",
           "vars": [
             {
-              "memstart": "0x7035",
+              "memstart": "0x7046",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -315,7 +315,7 @@
           "template": "4: {}",
           "vars": [
             {
-              "memstart": "0x7036",
+              "memstart": "0x7047",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -327,7 +327,7 @@
           "template": "5: {}",
           "vars": [
             {
-              "memstart": "0x7037",
+              "memstart": "0x7048",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -339,7 +339,7 @@
           "template": "6: {}",
           "vars": [
             {
-              "memstart": "0x7038",
+              "memstart": "0x7049",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -351,7 +351,7 @@
           "template": "7: {}",
           "vars": [
             {
-              "memstart": "0x7039",
+              "memstart": "0x704a",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -363,7 +363,7 @@
           "template": "8: {}",
           "vars": [
             {
-              "memstart": "0x703a",
+              "memstart": "0x704b",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -375,7 +375,7 @@
           "template": "9: {}",
           "vars": [
             {
-              "memstart": "0x703b",
+              "memstart": "0x704c",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -387,7 +387,7 @@
           "template": "0: {}",
           "vars": [
             {
-              "memstart": "0x7032",
+              "memstart": "0x7043",
               "length": 1,
               "type": "lookup",
               "lookup": "/tables/spells"
@@ -476,7 +476,7 @@
         },
         {
           "type": "Header",
-          "template": "Download AppleWin Companion on Github",
+          "template": "Download Nox Archaist Companion on Github",
           "color": [
             0.9,
             0.2,
