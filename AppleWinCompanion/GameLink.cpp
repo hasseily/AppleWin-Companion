@@ -400,7 +400,7 @@ void GameLink::SendKeystroke(UINT iVK_Code, LPARAM lParam)
 	}
 }
 
-sFramebufferInfo GameLink::GetFrameBufferInfo()	// TODO: STACK OVERFLOW
+sFramebufferInfo GameLink::GetFrameBufferInfo()
 {
 	sFramebufferInfo fbI = sFramebufferInfo();
 	DWORD dwWaitResult = WaitForSingleObject(g_mutex_handle, 1000);

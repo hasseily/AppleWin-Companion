@@ -250,17 +250,11 @@ void Game::Render()
                     // GameLink is waiting for a game, the texture size is (0,0)
                     //sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
                     //OutputDebugStringA(buf);
+					ChooseTexture();
                 }
             }
             else
             {
-                if (m_previousGameLinkFrameSequence == 0)
-                {
-                    // A game was activated on AppleWin since our last check, let's set the texture the right size
-                    ChooseTexture();
-                }
-                //sprintf_s(buf, "Gamelink active. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                //OutputDebugStringA(buf);
                 ChooseTexture();
             }
             m_previousGameLinkFrameSequence = seq;
