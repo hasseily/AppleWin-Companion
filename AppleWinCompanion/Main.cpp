@@ -401,6 +401,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             GameLink::Shutdown();
             break;
         }
+		case ID_VIDEO_NOSDHR:
+		{
+			GameLink::SetVideoModeNoSDHR();
+			break;
+		}
+		case ID_VIDEO_SDHR:
+		{
+			GameLink::SetVideoModeSDHR();
+			break;
+		}
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;

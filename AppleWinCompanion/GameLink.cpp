@@ -285,6 +285,16 @@ void GameLink::Shutdown()
 	SendCommand(std::string(":shutdown"));
 }
 
+void GameLink::SetVideoModeSDHR()
+{
+	SendCommand(std::string(":sdhr"));
+}
+
+void GameLink::SetVideoModeNoSDHR()
+{
+	SendCommand(std::string(":nosdhr"));
+}
+
 void GameLink::SetSoundVolume(UINT8 main, UINT8 mockingboard)
 {
 	if (main < 0)

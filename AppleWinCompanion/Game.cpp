@@ -115,14 +115,25 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
         auto res = GameLink::Init();
         if (res && (m_useGameLink))   // we were using the bg image. Swap
         {
+            bool shouldRecreateBuffers = false;
             auto fbI = GameLink::GetFrameBufferInfo();
-            txtDesc.Width = fbI.width;
-            txtDesc.Height = fbI.height;
+            if (txtDesc.Width != fbI.width)
+            {
+				txtDesc.Width = fbI.width;
+                shouldRecreateBuffers = true;
+            }
+            if (txtDesc.Height != fbI.height)
+            {
+				txtDesc.Height = fbI.height;
+				shouldRecreateBuffers = true;
+            }
             g_textureData.pData = fbI.frameBuffer;
             g_textureData.SlicePitch = fbI.bufferLength;
             SetVideoLayout(GameLinkLayout::FLIPPED_Y);
             //sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
             //OutputDebugStringA(buf);
+            if (shouldRecreateBuffers)
+                CreateWindowSizeDependentResources();
         }
     }
     // If GameLink is active, it could return a framebuffer of size (0,0).
@@ -250,7 +261,7 @@ void Game::Render()
                     // GameLink is waiting for a game, the texture size is (0,0)
                     //sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
                     //OutputDebugStringA(buf);
-					ChooseTexture();
+					// ChooseTexture();
                 }
             }
             else

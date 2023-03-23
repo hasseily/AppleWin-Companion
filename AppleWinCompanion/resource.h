@@ -23,6 +23,8 @@
 #define ID_VIDEOFLIP_FLIPXY             32779
 #define ID_Menu                         32780
 #define ID_FILE_DEACTIVATEPROFILE       32781
+#define ID_VIDEO_NOSDHR                 32785
+#define ID_VIDEO_SDHR                   32786
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -31,7 +33,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        129
-#define _APS_NEXT_COMMAND_VALUE         32782
+#define _APS_NEXT_COMMAND_VALUE         32787
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
