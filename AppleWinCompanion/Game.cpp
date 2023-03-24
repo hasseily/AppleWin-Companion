@@ -34,6 +34,8 @@ std::unique_ptr<BasicEffect> m_lineEffect;
 static float m_clientFrameScale = 1.f;
 static Vector2 m_vector2ero = { 0.f, 0.f };
 
+static bool bIsGamelinkPaused = true;
+
 Game::Game() noexcept(false)
 {
     g_textureData = {};
@@ -109,7 +111,9 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
     txtDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
     // Check if the shared memory exists. If so, use it.
-    // char buf[500];
+#ifdef _DEBUG
+    char buf[500];
+#endif
     if (m_useGameLink)
     {
         auto res = GameLink::Init();
@@ -130,8 +134,12 @@ D3D12_RESOURCE_DESC Game::ChooseTexture()
             g_textureData.pData = fbI.frameBuffer;
             g_textureData.SlicePitch = fbI.bufferLength;
             SetVideoLayout(GameLinkLayout::FLIPPED_Y);
-            //sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
-            //OutputDebugStringA(buf);
+			m_sbM.SetBaseSize(fbI.width, fbI.height);
+#ifdef _DEBUG
+            sprintf_s(buf, "GameLink up with Width %d, Height %d\n", fbI.width, fbI.height);
+            OutputDebugStringA(buf);
+#endif // _DEBUG
+
             if (shouldRecreateBuffers)
                 CreateWindowSizeDependentResources();
         }
@@ -246,10 +254,11 @@ void Game::Render()
             UINT16 seq = GameLink::GetFrameSequence();
             if (seq == m_previousGameLinkFrameSequence)
             {
+                bIsGamelinkPaused = true;
                 if (seq > 0)
                 {
                     // GameLink isn't doing anything, could be dead
-                    // Don't do anything, leave the screen frozen to the last image
+					GameLink::Destroy();    // Will be recreated from ChooseTexture()
 #ifdef _DEBUG
                     sprintf_s(buf, "Paused GameLink. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
                     OutputDebugStringA(buf);
@@ -258,6 +267,7 @@ void Game::Render()
                 else
                 {
                     // GameLink is waiting for a game, the texture size is (0,0)
+					GameLink::Destroy();    // Will be recreated from ChooseTexture()
 #ifdef _DEBUG
                     sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
                     OutputDebugStringA(buf);
@@ -266,6 +276,15 @@ void Game::Render()
             }
             else
             {
+                if (bIsGamelinkPaused)
+                {
+                    auto fbInfo = GameLink::GetFrameBufferInfo();
+                    if (fbInfo.width != 0 && fbInfo.height != 0)
+                    {
+						bIsGamelinkPaused = false;
+						OnWindowSizeChanged(fbInfo.width, fbInfo.height);
+                    }
+                }
                 ChooseTexture();
             }
             m_previousGameLinkFrameSequence = seq;
