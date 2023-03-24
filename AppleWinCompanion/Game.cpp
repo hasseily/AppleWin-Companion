@@ -237,7 +237,10 @@ void Game::Render()
     // Every m_framesDelay see if GameLink is active
     if ((currFrameCount - m_previousFrameCount) > m_framesDelay)
     {
-        // char buf[500];
+#ifdef _DEBUG
+        char buf[500];
+#endif
+
         if (GameLink::IsActive())
         {
             UINT16 seq = GameLink::GetFrameSequence();
@@ -246,22 +249,19 @@ void Game::Render()
                 if (seq > 0)
                 {
                     // GameLink isn't doing anything, could be dead
-                       // Revert to the original texture
-                    //sprintf_s(buf, "Destroying GameLink. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                    //OutputDebugStringA(buf);
-                    GameLink::Destroy();
-                    m_useGameLink = false;
-                    ChooseTexture();
-                    RECT rc;
-                    GetClientRect(m_window, &rc);
-                    OnWindowSizeChanged(rc.right - rc.left, rc.bottom - rc.top);
+                    // Don't do anything, leave the screen frozen to the last image
+#ifdef _DEBUG
+                    sprintf_s(buf, "Paused GameLink. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                    OutputDebugStringA(buf);
+#endif
                 }
                 else
                 {
                     // GameLink is waiting for a game, the texture size is (0,0)
-                    //sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
-                    //OutputDebugStringA(buf);
-					// ChooseTexture();
+#ifdef _DEBUG
+                    sprintf_s(buf, "Gamelink waiting for a game. Seq: %d - Prev: %d\n", seq, m_previousGameLinkFrameSequence);
+                    OutputDebugStringA(buf);
+#endif
                 }
             }
             else
@@ -273,8 +273,10 @@ void Game::Render()
         else
         {
             // Look for an active gamelink
-            //sprintf_s(buf, "Looking for active GameLink. Cur: %d - Prev: %d\n", currFrameCount, m_previousFrameCount);
-            //OutputDebugStringA(buf);
+#ifdef _DEBUG
+            sprintf_s(buf, "Looking for active GameLink. Cur: %d - Prev: %d\n", currFrameCount, m_previousFrameCount);
+            OutputDebugStringA(buf);
+#endif
             m_useGameLink = true;
             ChooseTexture();
         }
